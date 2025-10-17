@@ -64,15 +64,10 @@ export function ChatInviteCard({ collapsed = false }: { collapsed?: boolean }) {
   if (collapsed) {
     return (
       <>
-        <Button
-          size="icon"
-          variant="ghost"
+        <Share2Icon
           onClick={() => setOpen(true)}
-          className="shrink-0"
-        >
-          <Share2Icon className="w-5 h-5" />
-        </Button>
-
+          className="w-5 h-5 shrink-0"
+        />
         <InviteModal
           open={open}
           setOpen={setOpen}

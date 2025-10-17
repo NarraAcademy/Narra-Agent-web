@@ -81,7 +81,7 @@ export function ChatUserSection({ collapsed = false }: { collapsed?: boolean }) 
   // 已登录 - 折叠状态：垂直堆叠图标
   if (collapsed) {
     return (
-      <div className="mt-auto border-t border-border py-2 flex flex-col items-center gap-2">
+      <div className="mt-auto border-t border-border py-2 flex flex-col items-center gap-5">
         {/* 邀请图标 */}
         <ChatInviteCard collapsed={true} />
 

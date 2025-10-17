@@ -141,7 +141,7 @@ export function ChatSidebar({ collapsed = false, onToggleCollapse, onClose }: Ch
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               onFocus={() => setSearchDialogOpen(true)}
-              className="pl-8"
+              className="pl-8 shadow-none"
             />
           </div>
         </div>
@@ -158,102 +158,98 @@ export function ChatSidebar({ collapsed = false, onToggleCollapse, onClose }: Ch
 
       {/* 对话列表 */}
       <ScrollArea className="flex-1">
-        <div className={cn("p-2 space-y-1", collapsed && "flex flex-col items-center")}>
-          {filteredConversations.length === 0 ? (
-            !collapsed && (
+        {!collapsed && (
+          <div className="p-2 space-y-1">
+            {filteredConversations.length === 0 ? (
               <div className="text-center text-sm text-muted-foreground py-8">
                 {t("no_conversations")}
               </div>
-            )
-          ) : (
-            filteredConversations.map((conv) => (
-              <div
-                key={conv.id}
-                className={cn(
-                  "group rounded-lg cursor-pointer hover:bg-accent transition-colors",
-                  currentConversationId === conv.id && "bg-accent",
-                  collapsed ? "p-2 w-10 h-10 flex items-center justify-center" : "p-2"
-                )}
-                onClick={() => setCurrentConversation(conv.id)}
-                title={collapsed ? conv.title : undefined}
-              >
-                {collapsed ? (
-                  <ChatBubbleIcon className="w-5 h-5 shrink-0" />
-                ) : editingId === conv.id ? (
-                  <Input
-                    value={editTitle}
-                    onChange={(e) => setEditTitle(e.target.value)}
-                    onBlur={() => handleRename(conv.id)}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter") handleRename(conv.id);
-                      if (e.key === "Escape") {
-                        setEditingId(null);
-                        setEditTitle("");
-                      }
-                    }}
-                    autoFocus
-                    className="h-6 text-sm"
-                    aria-label="Rename conversation"
-                  />
-                ) : (
-                  <div className="flex items-center gap-2">
-                    <ChatBubbleIcon className="w-5 h-5 shrink-0" />
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium truncate">
-                        {conv.title}
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        {new Date(conv.updatedAt).toLocaleDateString(
-                          locale === "zh" ? "zh-CN" : "en-US",
-                          {
-                            month: "short",
-                            day: "numeric",
-                          }
-                        )}
-                      </p>
-                    </div>
+            ) : (
+              filteredConversations.map((conv) => (
+                <div
+                  key={conv.id}
+                  className={cn(
+                    "group rounded-lg cursor-pointer hover:bg-accent transition-colors p-2",
+                    currentConversationId === conv.id && "bg-accent"
+                  )}
+                  onClick={() => setCurrentConversation(conv.id)}
+                >
+                  {editingId === conv.id ? (
+                    <Input
+                      value={editTitle}
+                      onChange={(e) => setEditTitle(e.target.value)}
+                      onBlur={() => handleRename(conv.id)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") handleRename(conv.id);
+                        if (e.key === "Escape") {
+                          setEditingId(null);
+                          setEditTitle("");
+                        }
+                      }}
+                      autoFocus
+                      className="h-6 text-sm"
+                      aria-label="Rename conversation"
+                    />
+                  ) : (
+                    <div className="flex items-center gap-2">
+                      <ChatBubbleIcon className="w-5 h-5 shrink-0" />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium truncate">
+                          {conv.title}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          {new Date(conv.updatedAt).toLocaleDateString(
+                            locale === "zh" ? "zh-CN" : "en-US",
+                            {
+                              month: "short",
+                              day: "numeric",
+                            }
+                          )}
+                        </p>
+                      </div>
 
-                    {/* 操作菜单 */}
-                    <div className="opacity-0 group-hover:opacity-100 transition-opacity shrink-0 pointer-events-none group-hover:pointer-events-auto">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <DotsVerticalIcon
-                            className="w-5 h-5 cursor-pointer hover:text-primary transition-colors"
-                            onClick={(e) => e.stopPropagation()}
-                            aria-label="More actions"
-                            role="button"
-                          />
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              startEdit(conv.id, conv.title);
-                            }}
-                            className="cursor-pointer"
-                          >
-                            {t("rename")}
-                          </DropdownMenuItem>
-                          <DropdownMenuItem
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              if (confirm(t("delete_confirm"))) {
-                                deleteConversation(conv.id);
-                              }
-                            }}
-                            className="cursor-pointer text-destructive focus:text-destructive hover:bg-destructive/10"
-                          >
-                            {t("delete")}
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
+                      {/* 操作菜单 */}
+                      <div className="opacity-0 group-hover:opacity-100 transition-opacity shrink-0 pointer-events-none group-hover:pointer-events-auto">
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <DotsVerticalIcon
+                              className="w-5 h-5 cursor-pointer hover:text-primary transition-colors"
+                              onClick={(e) => e.stopPropagation()}
+                              aria-label="More actions"
+                              role="button"
+                            />
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                startEdit(conv.id, conv.title);
+                              }}
+                              className="cursor-pointer"
+                            >
+                              {t("rename")}
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                if (confirm(t("delete_confirm"))) {
+                                  deleteConversation(conv.id);
+                                }
+                              }}
+                              className="cursor-pointer text-destructive focus:text-destructive hover:bg-destructive/10"
+                            >
+                              {t("delete")}
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </div>
                     </div>
-                  </div>
-                )}
-              </div>
-            ))
-          )}
-        </div>
+                  )}
+                </div>
+              ))
+            )}
+          </div>
+        )}
       </ScrollArea>
 
       {/* 底部用户信息区 */}
