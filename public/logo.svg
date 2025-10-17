@@ -1,0 +1,47 @@
+<svg width="120" height="120" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- BNB inspired diamond shape with gradient -->
+  <defs>
+    <linearGradient id="bnbGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#F0B90B;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#F8D33A;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="aiGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#4A90E2;stop-opacity:0.8" />
+      <stop offset="100%" style="stop-color:#7B68EE;stop-opacity:0.8" />
+    </linearGradient>
+  </defs>
+
+  <!-- Main diamond shape (BNB style) -->
+  <g transform="translate(60, 60)">
+    <!-- Center large diamond -->
+    <path d="M 0,-35 L 25,-10 L 0,15 L -25,-10 Z" fill="url(#bnbGradient)" stroke="#D4A017" stroke-width="2"/>
+
+    <!-- Top diamond -->
+    <path d="M 0,-50 L 12,-38 L 0,-26 L -12,-38 Z" fill="url(#bnbGradient)" opacity="0.9"/>
+
+    <!-- Right diamond -->
+    <path d="M 40,-10 L 52,2 L 40,14 L 28,2 Z" fill="url(#bnbGradient)" opacity="0.9"/>
+
+    <!-- Bottom diamond -->
+    <path d="M 0,30 L 12,42 L 0,54 L -12,42 Z" fill="url(#bnbGradient)" opacity="0.9"/>
+
+    <!-- Left diamond -->
+    <path d="M -40,-10 L -28,2 L -40,14 L -52,2 Z" fill="url(#bnbGradient)" opacity="0.9"/>
+
+    <!-- AI accent - neural network nodes -->
+    <circle cx="0" cy="-35" r="3" fill="url(#aiGradient)"/>
+    <circle cx="25" cy="-10" r="3" fill="url(#aiGradient)"/>
+    <circle cx="0" cy="15" r="3" fill="url(#aiGradient)"/>
+    <circle cx="-25" cy="-10" r="3" fill="url(#aiGradient)"/>
+
+    <!-- Connecting lines for AI effect -->
+    <line x1="0" y1="-35" x2="25" y2="-10" stroke="url(#aiGradient)" stroke-width="1" opacity="0.5"/>
+    <line x1="25" y1="-10" x2="0" y2="15" stroke="url(#aiGradient)" stroke-width="1" opacity="0.5"/>
+    <line x1="0" y1="15" x2="-25" y2="-10" stroke="url(#aiGradient)" stroke-width="1" opacity="0.5"/>
+    <line x1="-25" y1="-10" x2="0" y2="-35" stroke="url(#aiGradient)" stroke-width="1" opacity="0.5"/>
+  </g>
+
+  <!-- Subtle glow effect -->
+  <circle cx="60" cy="60" r="45" fill="none" stroke="#F0B90B" stroke-width="1" opacity="0.2"/>
+  <circle cx="60" cy="60" r="50" fill="none" stroke="#F0B90B" stroke-width="0.5" opacity="0.1"/>
+</svg>

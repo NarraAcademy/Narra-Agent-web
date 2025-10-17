@@ -1,0 +1,192 @@
+{
+  "pricing": {
+    "name": "pricing",
+    "label": "定价",
+    "title": "选择适合您的方案",
+    "description": "开启智能加密货币投资之旅，无论您是新手还是专业投资者",
+    "groups": [
+      {
+        "name": "monthly",
+        "title": "包月",
+        "is_featured": true
+      },
+      {
+        "name": "yearly",
+        "title": "包年",
+        "label": "立省两个月"
+      }
+    ],
+    "items": [
+      {
+        "title": "Free",
+        "description": "免费开始体验 AI 加密货币助手",
+        "features_title": "包含功能：",
+        "features": [
+          "每日 10 次基础对话",
+          "实时市场数据查询",
+          "基础加密货币新闻",
+          "社区支持"
+        ],
+        "interval": "month",
+        "amount": 0,
+        "currency": "USD",
+        "price": "$0",
+        "unit": "",
+        "is_featured": false,
+        "tip": "无需信用卡，即刻开始",
+        "button": {
+          "title": "免费开始",
+          "url": "/",
+          "icon": "RiCheckLine"
+        },
+        "product_id": "free",
+        "product_name": "Narra Agent Free",
+        "group": "monthly"
+      },
+      {
+        "title": "Plus",
+        "description": "适合认真的加密货币投资者",
+        "label": "最受欢迎",
+        "features_title": "Free 版所有功能，以及：",
+        "features": [
+          "无限次基础对话",
+          "每日 20 次深度分析",
+          "实时价格提醒",
+          "专业市场分析报告",
+          "优先客服支持",
+          "无广告体验"
+        ],
+        "interval": "month",
+        "amount": 900,
+        "currency": "USD",
+        "price": "$9",
+        "unit": "/ 月",
+        "is_featured": true,
+        "tip": "7 天无理由退款",
+        "button": {
+          "title": "升级到 Plus",
+          "url": "/",
+          "icon": "RiFlashlightFill"
+        },
+        "product_id": "prod_RaHBVELa19dgXQ",
+        "product_name": "Narra Agent Plus 月付",
+        "group": "monthly"
+      },
+      {
+        "title": "Pro",
+        "description": "为专业交易者和机构打造",
+        "features_title": "Plus 版所有功能，以及：",
+        "features": [
+          "无限次深度分析",
+          "AI 投资组合优化建议",
+          "个性化投资策略",
+          "DeFi 项目深度研究",
+          "API 接入与集成",
+          "专属投资顾问（1 小时响应）",
+          "独家研究报告"
+        ],
+        "interval": "month",
+        "amount": 2900,
+        "currency": "USD",
+        "price": "$29",
+        "unit": "/ 月",
+        "is_featured": false,
+        "tip": "适合专业投资者",
+        "button": {
+          "title": "升级到 Pro",
+          "url": "/",
+          "icon": "RiFlashlightFill"
+        },
+        "product_id": "prod_RaHDxJ12DZ2vhs",
+        "product_name": "Narra Agent Pro 月付",
+        "group": "monthly"
+      },
+      {
+        "title": "Free",
+        "description": "免费开始体验 AI 加密货币助手",
+        "features_title": "包含功能：",
+        "features": [
+          "每日 10 次基础对话",
+          "实时市场数据查询",
+          "基础加密货币新闻",
+          "社区支持"
+        ],
+        "interval": "year",
+        "amount": 0,
+        "currency": "USD",
+        "price": "$0",
+        "unit": "",
+        "is_featured": false,
+        "tip": "无需信用卡，即刻开始",
+        "button": {
+          "title": "免费开始",
+          "url": "/",
+          "icon": "RiCheckLine"
+        },
+        "product_id": "free-yearly",
+        "product_name": "Narra Agent Free",
+        "group": "yearly"
+      },
+      {
+        "title": "Plus",
+        "description": "适合认真的加密货币投资者",
+        "label": "最受欢迎",
+        "features_title": "Free 版所有功能，以及：",
+        "features": [
+          "无限次基础对话",
+          "每日 20 次深度分析",
+          "实时价格提醒",
+          "专业市场分析报告",
+          "优先客服支持",
+          "无广告体验"
+        ],
+        "interval": "year",
+        "amount": 9000,
+        "currency": "USD",
+        "price": "$90",
+        "original_price": "$108",
+        "unit": "/ 年",
+        "is_featured": true,
+        "tip": "相当于每月仅需 $7.5",
+        "button": {
+          "title": "升级到 Plus",
+          "url": "/",
+          "icon": "RiFlashlightFill"
+        },
+        "product_id": "prod_RaHCWXhK9PtlC2",
+        "product_name": "Narra Agent Plus 年付",
+        "group": "yearly"
+      },
+      {
+        "title": "Pro",
+        "description": "为专业交易者和机构打造",
+        "features_title": "Plus 版所有功能，以及：",
+        "features": [
+          "无限次深度分析",
+          "AI 投资组合优化建议",
+          "个性化投资策略",
+          "DeFi 项目深度研究",
+          "API 接入与集成",
+          "专属投资顾问（1 小时响应）",
+          "独家研究报告"
+        ],
+        "interval": "year",
+        "amount": 29000,
+        "currency": "USD",
+        "price": "$290",
+        "original_price": "$348",
+        "unit": "/ 年",
+        "is_featured": false,
+        "tip": "相当于每月仅需 $24.2",
+        "button": {
+          "title": "升级到 Pro",
+          "url": "/",
+          "icon": "RiFlashlightFill"
+        },
+        "product_id": "prod_RaHEOB4SFE6YxU",
+        "product_name": "Narra Agent Pro 年付",
+        "group": "yearly"
+      }
+    ]
+  }
+}

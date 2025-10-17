@@ -1,0 +1,583 @@
+{
+  "template": "narra-agent",
+  "theme": "light",
+  "header": {
+    "brand": {
+      "title": "Narra Agent",
+      "logo": {
+        "src": "/logo.svg",
+        "alt": "Narra Agent"
+      },
+      "url": "/"
+    },
+    "nav": {
+      "items": [
+        {
+          "title": "功能特点",
+          "url": "/home#feature",
+          "icon": "RiSparkling2Line"
+        },
+        {
+          "title": "定价",
+          "url": "/pricing",
+          "icon": "RiMoneyDollarCircleLine"
+        },
+        {
+          "title": "文档",
+          "url": "/docs",
+          "icon": "RiBookOpenLine"
+        }
+      ]
+    },
+    "buttons": [
+      {
+        "title": "立即加入",
+        "url": "/pricing",
+        "target": "_self",
+        "variant": "link",
+        "icon": "RiArrowRightUpLine"
+      }
+    ],
+    "show_sign": true,
+    "show_theme": true,
+    "show_locale": true
+  },
+  "hero": {
+    "title": "下一代加密货币智能中心",
+    "highlight_text": "智能中心",
+    "description": "通过AI驱动的深度研究、自动化执行与实时洞察，主导全链加密市场。<br/>为追求极致的交易者、投资者和开发者而生。",
+    "announcement": {
+      "label": "最新",
+      "title": "🚀 多链支持已上线",
+      "url": "/home#feature"
+    },
+    "tip": "⚡ 实时覆盖50+条链",
+    "buttons": [
+      {
+        "title": "开启智能交易",
+        "icon": "RiFlashlightFill",
+        "url": "/",
+        "target": "_self",
+        "variant": "default"
+      },
+      {
+        "title": "探索功能",
+        "icon": "RiCompass3Line",
+        "url": "/home#feature",
+        "target": "_self",
+        "variant": "outline"
+      }
+    ],
+    "show_happy_users": true,
+    "show_badge": false
+  },
+  "branding": {
+    "title": "全面覆盖主流与新兴区块链生态",
+    "items": [
+      {
+        "title": "Bitcoin",
+        "image": {
+          "src": "/imgs/logos/btc@2x.png",
+          "alt": "Bitcoin"
+        }
+      },
+      {
+        "title": "Ethereum",
+        "image": {
+          "src": "/imgs/logos/eth@2x.png",
+          "alt": "Ethereum"
+        }
+      },
+      {
+        "title": "BNB Chain",
+        "image": {
+          "src": "/imgs/logos/bnb@2x.png",
+          "alt": "BNB Chain"
+        }
+      },
+      {
+        "title": "Solana",
+        "image": {
+          "src": "/imgs/logos/sol@2x.png",
+          "alt": "Solana"
+        }
+      },
+      {
+        "title": "XRP",
+        "image": {
+          "src": "/imgs/logos/xrp@2x.png",
+          "alt": "XRP"
+        }
+      },
+      {
+        "title": "Cardano",
+        "image": {
+          "src": "/imgs/logos/ada@2x.png",
+          "alt": "Cardano"
+        }
+      },
+      {
+        "title": "Avalanche",
+        "image": {
+          "src": "/imgs/logos/avax@2x.png",
+          "alt": "Avalanche"
+        }
+      },
+      {
+        "title": "Polkadot",
+        "image": {
+          "src": "/imgs/logos/dot@2x.png",
+          "alt": "Polkadot"
+        }
+      },
+      {
+        "title": "Polygon",
+        "image": {
+          "src": "/imgs/logos/matic@2x.png",
+          "alt": "Polygon"
+        }
+      },
+      {
+        "title": "Chainlink",
+        "image": {
+          "src": "/imgs/logos/link@2x.png",
+          "alt": "Chainlink"
+        }
+      },
+      {
+        "title": "Litecoin",
+        "image": {
+          "src": "/imgs/logos/ltc@2x.png",
+          "alt": "Litecoin"
+        }
+      },
+      {
+        "title": "Uniswap",
+        "image": {
+          "src": "/imgs/logos/uni@2x.png",
+          "alt": "Uniswap"
+        }
+      },
+      {
+        "title": "Cosmos",
+        "image": {
+          "src": "/imgs/logos/atom@2x.png",
+          "alt": "Cosmos"
+        }
+      },
+      {
+        "title": "Algorand",
+        "image": {
+          "src": "/imgs/logos/algo@2x.png",
+          "alt": "Algorand"
+        }
+      },
+      {
+        "title": "Aave",
+        "image": {
+          "src": "/imgs/logos/aave@2x.png",
+          "alt": "Aave"
+        }
+      },
+      {
+        "title": "Filecoin",
+        "image": {
+          "src": "/imgs/logos/fil@2x.png",
+          "alt": "Filecoin"
+        }
+      },
+      {
+        "title": "Tron",
+        "image": {
+          "src": "/imgs/logos/trx@2x.png",
+          "alt": "Tron"
+        }
+      },
+      {
+        "title": "Stellar",
+        "image": {
+          "src": "/imgs/logos/xlm@2x.png",
+          "alt": "Stellar"
+        }
+      }
+    ]
+  },
+  "introduce": {
+    "name": "introduce",
+    "title": "什么是 Narra Agent",
+    "label": "介绍",
+    "description": "Narra Agent 是您的AI驱动加密货币智能平台，提供先进研究、自动化执行和跨多链网络的全面市场分析。",
+    "image": {
+      "src": "/imgs/features/1.png"
+    },
+    "items": [
+      {
+        "title": "深度市场研究",
+        "description": "实时聚合顶级数据源，包括链上分析、社交情绪和机构资金流向。",
+        "icon": "RiSearchEyeLine"
+      },
+      {
+        "title": "自动化执行",
+        "description": "精准执行策略，覆盖50+条链和500+协议，从DeFi到NFT市场。",
+        "icon": "RiRocket2Line"
+      },
+      {
+        "title": "实时智能",
+        "description": "持续市场监控、即时预警和AI驱动的预测洞察，助您保持领先。",
+        "icon": "RiFlashlightLine"
+      }
+    ]
+  },
+  "benefit": {
+    "name": "benefit",
+    "title": "Narra Agent 的主导优势",
+    "label": "优势",
+    "description": "体验最全面的加密货币智能平台，为拒绝妥协的专业人士打造。",
+    "items": [
+      {
+        "title": "统一指挥中心",
+        "description": "一个平台搞定研究、执行、风险管理和投资组合追踪。告别数十个工具和仪表板的混乱切换。",
+        "icon": "RiDashboardLine",
+        "image": {
+          "src": "/imgs/features/2.png"
+        }
+      },
+      {
+        "title": "多模态智能",
+        "description": "可视化热力图、趋势评分卡、情绪分析和巨鲸追踪，结合您真正能理解的自然语言洞察。",
+        "icon": "RiBarChartBoxLine",
+        "image": {
+          "src": "/imgs/features/3.png"
+        }
+      },
+      {
+        "title": "零延迟执行",
+        "description": "直连主流交易所和DEX，亚毫秒级延迟。当机会出现时，您已捷足先登。",
+        "icon": "RiTimeLine",
+        "image": {
+          "src": "/imgs/features/4.png"
+        }
+      }
+    ]
+  },
+  "usage": {
+    "name": "usage",
+    "title": "几分钟即可开始",
+    "description": "从注册到首笔交易 - 体验加密货币行业最快的入门流程：",
+    "image": {
+      "src": "/imgs/features/1.png"
+    },
+    "image_position": "left",
+    "text_align": "center",
+    "items": [
+      {
+        "title": "连接您的钱包",
+        "description": "使用只读API密钥安全链接交易所和钱包。您的资金始终在您的掌控中。",
+        "image": {
+          "src": "/imgs/features/5.png"
+        }
+      },
+      {
+        "title": "配置智能系统",
+        "description": "设置风险参数、首选链和通知偏好。Narra Agent 适应您的策略。",
+        "image": {
+          "src": "/imgs/features/6.png"
+        }
+      },
+      {
+        "title": "部署您的策略",
+        "description": "从预置策略中选择或创建自定义自动化。上线前包含回测功能。",
+        "image": {
+          "src": "/imgs/features/7.png"
+        }
+      },
+      {
+        "title": "监控与优化",
+        "description": "通过全面分析实时追踪表现。利用AI推荐持续优化您的优势。",
+        "image": {
+          "src": "/imgs/features/8.png"
+        }
+      }
+    ]
+  },
+  "feature": {
+    "name": "feature",
+    "title": "企业级功能",
+    "description": "专业交易者和机构维持竞争优势所需的一切。",
+    "items": [
+      {
+        "title": "AI 研究助手",
+        "description": "跨链上数据、新闻、社交信号和技术指标的自然语言查询。秒级获取答案，而非数小时。",
+        "icon": "RiRobot2Line"
+      },
+      {
+        "title": "智能订单路由",
+        "description": "自动在CEX和DEX中找到最佳执行路径，具备MEV保护和滑点优化。",
+        "icon": "RiRouteLine"
+      },
+      {
+        "title": "风险智能",
+        "description": "实时投资组合风险评分、相关性分析和自动熔断机制，保护您的资金。",
+        "icon": "RiShieldCheckLine"
+      },
+      {
+        "title": "多链投资组合",
+        "description": "统一查看50+条链上的持仓，自动成本基础跟踪和税务报告。",
+        "icon": "RiPieChartLine"
+      },
+      {
+        "title": "社交情绪引擎",
+        "description": "追踪巨鲸动向、意见领袖活动和社区情绪，配备AI驱动的信号过滤。",
+        "icon": "RiPulseLine"
+      },
+      {
+        "title": "自定义策略",
+        "description": "使用无代码界面构建和回测交易策略，高级用户可使用Python SDK。",
+        "icon": "RiCodeSSlashLine"
+      }
+    ]
+  },
+  "stats": {
+    "name": "stats",
+    "label": "统计",
+    "title": "深受加密专业人士信赖",
+    "description": "数据不会说谎。",
+    "icon": "FaRegHeart",
+    "items": [
+      {
+        "title": "活跃交易者",
+        "label": "10K+",
+        "description": "全球用户"
+      },
+      {
+        "title": "日交易量",
+        "label": "$500M+",
+        "description": "已处理"
+      },
+      {
+        "title": "支持链数",
+        "label": "50+",
+        "description": "网络"
+      }
+    ]
+  },
+  "testimonial": {
+    "name": "testimonial",
+    "label": "用户评价",
+    "title": "交易者如何评价 Narra Agent",
+    "description": "来自使用 Narra Agent 进行智能交易的专业人士的真实反馈。",
+    "icon": "GoThumbsup",
+    "items": [
+      {
+        "title": "Alex M.",
+        "label": "专业DeFi交易员",
+        "description": "Narra Agent的多链研究能力每天为我节省10+小时。我在主流6小时前发现了PEPE机会，仓位翻了3倍。这就是我需要的优势。",
+        "image": {
+          "src": "/imgs/users/1.png"
+        }
+      },
+      {
+        "title": "陈莎拉",
+        "label": "UltraThink 投资组合经理",
+        "description": "我们管理着5000万美元的DeFi协议资产。Narra Agent的风险智能和自动再平衡将我们的回撤减少了40%，同时提高了回报。绝对的游戏改变者。",
+        "image": {
+          "src": "/imgs/users/2.png"
+        }
+      },
+      {
+        "title": "帕特尔·马库斯",
+        "label": "加密对冲基金分析师",
+        "description": "情绪引擎无与伦比。我们在Arbitrum空投农民抛售前就捕捉到了信号，比推特早知道。单笔交易为基金节省了7位数。",
+        "image": {
+          "src": "/imgs/users/3.png"
+        }
+      },
+      {
+        "title": "刘杰西卡",
+        "label": "NFT巨鲸与收藏家",
+        "description": "Narra Agent同时追踪15条链上的蓝筹NFT地板价。我在暴跌时自动买入BAYC衍生品，48小时内以2.3倍价格翻转获利。",
+        "image": {
+          "src": "/imgs/users/4.png"
+        }
+      },
+      {
+        "title": "罗德里格斯·大卫",
+        "label": "智能合约开发者",
+        "description": "作为开发者，我需要深度链上分析。Narra Agent的Python SDK让我在数小时内构建了自定义策略。已自动化3个MEV策略，胜率超过85%。",
+        "image": {
+          "src": "/imgs/users/5.png"
+        }
+      },
+      {
+        "title": "张艾米莉",
+        "label": "散户交易者 → 全职交易",
+        "description": "六个月前从1万美元起步。Narra Agent的回测和风险管理帮我增长到18万美元。上个月辞职了。这个平台改变了我的人生。",
+        "image": {
+          "src": "/imgs/users/6.png"
+        }
+      }
+    ]
+  },
+  "faq": {
+    "name": "faq",
+    "label": "常见问题",
+    "title": "关于 Narra Agent 的常见问题",
+    "description": "还有其他问题？加入我们的Discord或在X上联系我们。",
+    "items": [
+      {
+        "title": "Narra Agent 与其他加密交易平台有何不同？",
+        "description": "Narra Agent在一个统一平台中结合了研究、执行和风险管理。其他平台只专注于交易或分析，而我们提供完整的智能技术栈，配备AI驱动的洞察覆盖50+条链、实时情绪分析和机构级执行基础设施。"
+      },
+      {
+        "title": "我的资金在 Narra Agent 上安全吗？",
+        "description": "绝对安全。Narra Agent使用只读API密钥进行交易所连接，以及非托管钱包集成。您的资金永远不会接触我们的系统。您保持完全控制，而我们在上层提供智能和自动化功能。"
+      },
+      {
+        "title": "Narra Agent 支持哪些链和协议？",
+        "description": "我们支持50+区块链网络，包括BNB Chain、以太坊、Solana、Polygon、Avalanche、Arbitrum、Optimism等。集成覆盖500+ DeFi协议、主流CEX和NFT市场。新链会根据用户需求持续添加。"
+      },
+      {
+        "title": "使用 Narra Agent 需要编程经验吗？",
+        "description": "核心功能无需编程。我们的无代码策略构建器和预置模板开箱即用。但是，高级用户可以利用我们的Python SDK和REST API来构建自定义策略和集成。"
+      },
+      {
+        "title": "每个定价层级包含什么？",
+        "description": "所有层级都包含核心研究和投资组合跟踪功能。更高层级解锁自动化执行、高级风险管理、无限回测、优先数据源和机构功能。查看我们的定价页面了解详细对比。"
+      },
+      {
+        "title": "我可以在承诺前试用 Narra Agent 吗？",
+        "description": "可以！从我们的免费层级开始探索研究功能和投资组合跟踪。当您准备好扩展时，升级以解锁自动化和高级功能。免费层级无需信用卡。"
+      }
+    ]
+  },
+  "cta": {
+    "name": "cta",
+    "title": "今天就开始智能交易",
+    "description": "加入数千名使用 Narra Agent 主导市场的交易者。",
+    "buttons": [
+      {
+        "title": "免费开始",
+        "url": "/",
+        "target": "_self",
+        "icon": "GoArrowUpRight"
+      },
+      {
+        "title": "查看文档",
+        "url": "/docs",
+        "target": "_self",
+        "variant": "outline"
+      }
+    ]
+  },
+  "footer": {
+    "name": "footer",
+    "brand": {
+      "title": "Narra Agent",
+      "description": "您的下一代加密货币智能中心。AI驱动的研究、自动化执行和50+条链的实时洞察。",
+      "logo": {
+        "src": "/logo.svg",
+        "alt": "Narra Agent"
+      },
+      "url": "/"
+    },
+    "copyright": "© 2025 • Narra Agent 保留所有权利。",
+    "nav": {
+      "items": [
+        {
+          "title": "产品",
+          "children": [
+            {
+              "title": "功能特点",
+              "url": "/home#feature",
+              "target": "_self"
+            },
+            {
+              "title": "定价",
+              "url": "/pricing",
+              "target": "_self"
+            },
+            {
+              "title": "案例展示",
+              "url": "/showcase",
+              "target": "_self"
+            }
+          ]
+        },
+        {
+          "title": "资源",
+          "children": [
+            {
+              "title": "文档",
+              "url": "/docs",
+              "target": "_self"
+            },
+            {
+              "title": "博客",
+              "url": "/posts",
+              "target": "_self"
+            },
+            {
+              "title": "API 参考",
+              "url": "/docs/api",
+              "target": "_self"
+            }
+          ]
+        },
+        {
+          "title": "社区",
+          "children": [
+            {
+              "title": "Discord",
+              "url": "https://discord.com/",
+              "target": "_blank"
+            },
+            {
+              "title": "X (Twitter)",
+              "url": "https://x.com/narralayer",
+              "target": "_blank"
+            },
+            {
+              "title": "GitHub",
+              "url": "https://github.com/",
+              "target": "_blank"
+            }
+          ]
+        }
+      ]
+    },
+    "social": {
+      "items": [
+        {
+          "title": "X",
+          "icon": "RiTwitterXFill",
+          "url": "https://x.com/narralayer",
+          "target": "_blank"
+        },
+        {
+          "title": "Github",
+          "icon": "RiGithubFill",
+          "url": "https://github.com/",
+          "target": "_blank"
+        },
+        {
+          "title": "Discord",
+          "icon": "RiDiscordFill",
+          "url": "https://discord.com/",
+          "target": "_blank"
+        }
+      ]
+    },
+    "agreement": {
+      "items": [
+        {
+          "title": "隐私政策",
+          "url": "/privacy-policy"
+        },
+        {
+          "title": "服务条款",
+          "url": "/terms-of-service"
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,192 @@
+{
+  "pricing": {
+    "name": "pricing",
+    "label": "Pricing",
+    "title": "Choose Your Perfect Plan",
+    "description": "Start your intelligent crypto investment journey, whether you're a beginner or a professional trader",
+    "groups": [
+      {
+        "name": "monthly",
+        "title": "Monthly",
+        "is_featured": true
+      },
+      {
+        "name": "yearly",
+        "title": "Annually",
+        "label": "Save 2 months"
+      }
+    ],
+    "items": [
+      {
+        "title": "Free",
+        "description": "Get started with AI crypto assistant for free",
+        "features_title": "Includes:",
+        "features": [
+          "10 basic conversations per day",
+          "Real-time market data",
+          "Basic crypto news",
+          "Community support"
+        ],
+        "interval": "month",
+        "amount": 0,
+        "currency": "USD",
+        "price": "$0",
+        "unit": "",
+        "is_featured": false,
+        "tip": "No credit card required",
+        "button": {
+          "title": "Get Started",
+          "url": "/",
+          "icon": "RiCheckLine"
+        },
+        "product_id": "free",
+        "product_name": "Narra Agent Free",
+        "group": "monthly"
+      },
+      {
+        "title": "Plus",
+        "description": "Perfect for serious crypto investors",
+        "label": "Most Popular",
+        "features_title": "Everything in Free, plus:",
+        "features": [
+          "Unlimited basic conversations",
+          "20 deep analyses per day",
+          "Real-time price alerts",
+          "Professional market reports",
+          "Priority customer support",
+          "Ad-free experience"
+        ],
+        "interval": "month",
+        "amount": 900,
+        "currency": "USD",
+        "price": "$9",
+        "unit": "/ mo",
+        "is_featured": true,
+        "tip": "7-day money-back guarantee",
+        "button": {
+          "title": "Upgrade to Plus",
+          "url": "/",
+          "icon": "RiFlashlightFill"
+        },
+        "product_id": "prod_RaHBVELa19dgXQ",
+        "product_name": "Narra Agent Plus Monthly",
+        "group": "monthly"
+      },
+      {
+        "title": "Pro",
+        "description": "Built for professional traders and institutions",
+        "features_title": "Everything in Plus, plus:",
+        "features": [
+          "Unlimited deep analyses",
+          "AI portfolio optimization",
+          "Personalized investment strategies",
+          "In-depth DeFi project research",
+          "API access and integration",
+          "Dedicated advisor (1h response)",
+          "Exclusive research reports"
+        ],
+        "interval": "month",
+        "amount": 2900,
+        "currency": "USD",
+        "price": "$29",
+        "unit": "/ mo",
+        "is_featured": false,
+        "tip": "For professional investors",
+        "button": {
+          "title": "Upgrade to Pro",
+          "url": "/",
+          "icon": "RiFlashlightFill"
+        },
+        "product_id": "prod_RaHDxJ12DZ2vhs",
+        "product_name": "Narra Agent Pro Monthly",
+        "group": "monthly"
+      },
+      {
+        "title": "Free",
+        "description": "Get started with AI crypto assistant for free",
+        "features_title": "Includes:",
+        "features": [
+          "10 basic conversations per day",
+          "Real-time market data",
+          "Basic crypto news",
+          "Community support"
+        ],
+        "interval": "year",
+        "amount": 0,
+        "currency": "USD",
+        "price": "$0",
+        "unit": "",
+        "is_featured": false,
+        "tip": "No credit card required",
+        "button": {
+          "title": "Get Started",
+          "url": "/",
+          "icon": "RiCheckLine"
+        },
+        "product_id": "free-yearly",
+        "product_name": "Narra Agent Free",
+        "group": "yearly"
+      },
+      {
+        "title": "Plus",
+        "description": "Perfect for serious crypto investors",
+        "label": "Most Popular",
+        "features_title": "Everything in Free, plus:",
+        "features": [
+          "Unlimited basic conversations",
+          "20 deep analyses per day",
+          "Real-time price alerts",
+          "Professional market reports",
+          "Priority customer support",
+          "Ad-free experience"
+        ],
+        "interval": "year",
+        "amount": 9000,
+        "currency": "USD",
+        "price": "$90",
+        "original_price": "$108",
+        "unit": "/ yr",
+        "is_featured": true,
+        "tip": "Just $7.5 per month",
+        "button": {
+          "title": "Upgrade to Plus",
+          "url": "/",
+          "icon": "RiFlashlightFill"
+        },
+        "product_id": "prod_RaHCWXhK9PtlC2",
+        "product_name": "Narra Agent Plus Annually",
+        "group": "yearly"
+      },
+      {
+        "title": "Pro",
+        "description": "Built for professional traders and institutions",
+        "features_title": "Everything in Plus, plus:",
+        "features": [
+          "Unlimited deep analyses",
+          "AI portfolio optimization",
+          "Personalized investment strategies",
+          "In-depth DeFi project research",
+          "API access and integration",
+          "Dedicated advisor (1h response)",
+          "Exclusive research reports"
+        ],
+        "interval": "year",
+        "amount": 29000,
+        "currency": "USD",
+        "price": "$290",
+        "original_price": "$348",
+        "unit": "/ yr",
+        "is_featured": false,
+        "tip": "Just $24.2 per month",
+        "button": {
+          "title": "Upgrade to Pro",
+          "url": "/",
+          "icon": "RiFlashlightFill"
+        },
+        "product_id": "prod_RaHEOB4SFE6YxU",
+        "product_name": "Narra Agent Pro Annually",
+        "group": "yearly"
+      }
+    ]
+  }
+}

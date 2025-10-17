@@ -1,0 +1,197 @@
+{
+  "metadata": {
+    "title": "Narra Agent - Your AI Crypto Investment Assistant",
+    "description": "Narra Agent is an intelligent cryptocurrency investment assistant powered by AI, providing real-time market analysis and professional investment insights.",
+    "keywords": "Narra Agent, AI Crypto Assistant, Cryptocurrency Investment, Blockchain Analysis"
+  },
+  "user": {
+    "sign_in": "Sign In",
+    "sign_out": "Sign Out",
+    "credits": "Credits",
+    "api_keys": "API Keys",
+    "my_orders": "My Orders",
+    "user_center": "User Center",
+    "admin_system": "Admin System"
+  },
+  "sign_modal": {
+    "sign_in_title": "Sign In",
+    "sign_in_description": "Sign in to your account",
+    "sign_up_title": "Sign Up",
+    "sign_up_description": "Create an account",
+    "email_title": "Email",
+    "email_placeholder": "Input your email here",
+    "password_title": "Password",
+    "password_placeholder": "Input your password here",
+    "forgot_password": "Forgot password?",
+    "or": "Or",
+    "continue": "Continue",
+    "no_account": "Don't have an account?",
+    "email_sign_in": "Sign in with Email",
+    "google_sign_in": "Sign in with Google",
+    "github_sign_in": "Sign in with GitHub",
+    "close_title": "Close",
+    "cancel_title": "Cancel"
+  },
+  "my_orders": {
+    "title": "My Orders",
+    "description": "orders paid with Narra Agent.",
+    "no_orders": "No orders found",
+    "tip": "",
+    "activate_order": "Activate Order",
+    "actived": "Activated",
+    "join_discord": "Join Discord",
+    "read_docs": "Read Docs",
+    "table": {
+      "order_no": "Order No",
+      "email": "Email",
+      "product_name": "Product Name",
+      "amount": "Amount",
+      "paid_at": "Paid At",
+      "github_username": "GitHub Username",
+      "status": "Status",
+      "manage_billing": "Manage Billing",
+      "interval": "Interval",
+      "interval_month": "Monthly",
+      "interval_year": "Annually",
+      "interval_one_time": "One-Time"
+    }
+  },
+  "my_credits": {
+    "title": "My Credits",
+    "left_tip": "left credits: {left_credits}",
+    "no_credits": "No credits records",
+    "recharge": "Recharge",
+    "table": {
+      "trans_no": "Trans No",
+      "trans_type": "Trans Type",
+      "credits": "Credits",
+      "updated_at": "Updated At",
+      "status": "Status",
+      "expired_at": "Expired At",
+      "created_at": "Created At"
+    }
+  },
+  "api_keys": {
+    "title": "API Keys",
+    "tip": "Please keep your apikey safe to avoid leaks",
+    "no_api_keys": "No API Keys",
+    "create_api_key": "Create API Key",
+    "table": {
+      "name": "Name",
+      "key": "Key",
+      "created_at": "Created At"
+    },
+    "form": {
+      "name": "Name",
+      "name_placeholder": "API Key Name",
+      "submit": "Submit"
+    }
+  },
+  "blog": {
+    "title": "Blog",
+    "description": "News, resources, and updates about Narra Agent",
+    "read_more_text": "Read More",
+    "no_content": "No content",
+    "all": "All",
+    "category": "Category",
+    "author": "Author"
+  },
+  "my_invites": {
+    "title": "My Invites",
+    "description": "View your invite records",
+    "no_invites": "No invite records found",
+    "my_invite_link": "My Invite Link",
+    "edit_invite_link": "Edit Invite Link",
+    "copy_invite_link": "Copy Invite Link",
+    "invite_code": "Invite Code",
+    "invite_tip": "Invite 1 friend to buy Narra Agent, reward $50.",
+    "invite_balance": "Invite Reward Balance",
+    "total_invite_count": "Total Invite Count",
+    "total_paid_count": "Total Paid Count",
+    "total_award_amount": "Total Award Amount",
+    "update_invite_code": "Set Invite Code",
+    "update_invite_code_tip": "Input your custom invite code",
+    "update_invite_button": "Save",
+    "no_orders": "You can't invite others before you bought Narra Agent",
+    "no_affiliates": "You're not allowed to invite others, please contact us to apply for permission.",
+    "table": {
+      "invite_time": "Invite Time",
+      "invite_user": "Invite User",
+      "status": "Status",
+      "reward_percent": "Reward Percent",
+      "reward_amount": "Reward Amount",
+      "pending": "Pending",
+      "completed": "Completed"
+    }
+  },
+  "feedback": {
+    "title": "Feedback",
+    "description": "We'd love to hear what went well or how we can improve the product experience.",
+    "submit": "Submit",
+    "loading": "Submitting...",
+    "contact_tip": "Other ways to contact us",
+    "rating_tip": "How do you feel about Narra Agent?",
+    "placeholder": "Leave your words here..."
+  },
+  "chat": {
+    "new_chat": "New Chat",
+    "search_placeholder": "Search chat history",
+    "no_conversations": "No conversations yet",
+    "new_conversation": "New Conversation",
+    "rename": "Rename",
+    "delete": "Delete",
+    "delete_confirm": "Delete this conversation?",
+    "title_placeholder": "What blockchain news are you exploring today?",
+    "subtitle": "I'm your AI cryptocurrency assistant, ready to analyze market data and answer questions",
+    "input_placeholder": "Ask about crypto, blockchain or DeFi...",
+    "send": "Send",
+    "thinking": "Thinking...",
+    "deep_thinking_mode": "Deep Thinking Mode",
+    "disclaimer": "Narra Agent may generate inaccurate information. Please use with caution",
+    "error_send_failed": "Failed to send message, please try again",
+    "error_no_response": "Sorry, I didn't receive any response.",
+    "error_generic": "Sorry, I encountered some issues. Please try again later.",
+    "preset_questions": {
+      "analyze_crypto": "Analyze cryptocurrency market trends and data",
+      "crypto_news": "What important crypto news today?",
+      "defi_risk": "How to assess risks in a DeFi project?"
+    },
+    "invite_card": {
+      "title": "Share Narra Agent with Friends",
+      "subtitle": "Invite friends to explore the crypto world together"
+    },
+    "invite_modal": {
+      "title": "Invite Friends",
+      "share_link_label": "Share your invitation link",
+      "copy": "Copy",
+      "email_label": "Email your invitation",
+      "email_placeholder": "Enter email address",
+      "send": "Send",
+      "invitation_history": "Invitation history",
+      "referrals": "Referrals",
+      "redeem": "Redeem",
+      "view_history": "Invitation history"
+    },
+    "search_dialog": {
+      "title": "Search Chats",
+      "placeholder": "Search conversations...",
+      "today": "Today",
+      "yesterday": "Yesterday",
+      "this_week": "This Week",
+      "last_week": "Last Week",
+      "earlier": "Earlier",
+      "no_results": "No matching conversations found"
+    },
+    "user_menu": {
+      "upgrade": "Upgrade",
+      "theme": "Theme",
+      "theme_light": "Light",
+      "theme_dark": "Dark",
+      "theme_system": "System",
+      "language": "Language",
+      "language_zh": "中文",
+      "language_en": "English",
+      "logout": "Sign Out"
+    }
+  }
+}

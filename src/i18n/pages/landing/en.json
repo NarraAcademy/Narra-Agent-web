@@ -1,0 +1,583 @@
+{
+  "template": "narra-agent",
+  "theme": "light",
+  "header": {
+    "brand": {
+      "title": "Narra Agent",
+      "logo": {
+        "src": "/logo.svg",
+        "alt": "Narra Agent"
+      },
+      "url": "/"
+    },
+    "nav": {
+      "items": [
+        {
+          "title": "Features",
+          "url": "/home#feature",
+          "icon": "RiSparkling2Line"
+        },
+        {
+          "title": "Pricing",
+          "url": "/pricing",
+          "icon": "RiMoneyDollarCircleLine"
+        },
+        {
+          "title": "Docs",
+          "url": "/docs",
+          "icon": "RiBookOpenLine"
+        }
+      ]
+    },
+    "buttons": [
+      {
+        "title": "Join Now",
+        "url": "/pricing",
+        "target": "_self",
+        "variant": "link",
+        "icon": "RiArrowRightUpLine"
+      }
+    ],
+    "show_sign": true,
+    "show_theme": true,
+    "show_locale": true
+  },
+  "hero": {
+    "title": "Your Next-Gen Crypto Intelligence Hub",
+    "highlight_text": "Intelligence Hub",
+    "description": "Dominate crypto markets with AI-powered research, automated execution, and real-time insights across all major chains.<br/>Built for traders, investors, and developers who demand more.",
+    "announcement": {
+      "label": "NEW",
+      "title": "🚀 Multi-Chain Support Live",
+      "url": "/home#feature"
+    },
+    "tip": "⚡ Real-time insights across 50+ chains",
+    "buttons": [
+      {
+        "title": "Start Trading Smarter",
+        "icon": "RiFlashlightFill",
+        "url": "/",
+        "target": "_self",
+        "variant": "default"
+      },
+      {
+        "title": "Explore Features",
+        "icon": "RiCompass3Line",
+        "url": "/home#feature",
+        "target": "_self",
+        "variant": "outline"
+      }
+    ],
+    "show_happy_users": true,
+    "show_badge": false
+  },
+  "branding": {
+    "title": "Comprehensive Coverage Across Leading and Emerging Chains",
+    "items": [
+      {
+        "title": "Bitcoin",
+        "image": {
+          "src": "/imgs/logos/btc@2x.png",
+          "alt": "Bitcoin"
+        }
+      },
+      {
+        "title": "Ethereum",
+        "image": {
+          "src": "/imgs/logos/eth@2x.png",
+          "alt": "Ethereum"
+        }
+      },
+      {
+        "title": "BNB Chain",
+        "image": {
+          "src": "/imgs/logos/bnb@2x.png",
+          "alt": "BNB Chain"
+        }
+      },
+      {
+        "title": "Solana",
+        "image": {
+          "src": "/imgs/logos/sol@2x.png",
+          "alt": "Solana"
+        }
+      },
+      {
+        "title": "XRP",
+        "image": {
+          "src": "/imgs/logos/xrp@2x.png",
+          "alt": "XRP"
+        }
+      },
+      {
+        "title": "Cardano",
+        "image": {
+          "src": "/imgs/logos/ada@2x.png",
+          "alt": "Cardano"
+        }
+      },
+      {
+        "title": "Avalanche",
+        "image": {
+          "src": "/imgs/logos/avax@2x.png",
+          "alt": "Avalanche"
+        }
+      },
+      {
+        "title": "Polkadot",
+        "image": {
+          "src": "/imgs/logos/dot@2x.png",
+          "alt": "Polkadot"
+        }
+      },
+      {
+        "title": "Polygon",
+        "image": {
+          "src": "/imgs/logos/matic@2x.png",
+          "alt": "Polygon"
+        }
+      },
+      {
+        "title": "Chainlink",
+        "image": {
+          "src": "/imgs/logos/link@2x.png",
+          "alt": "Chainlink"
+        }
+      },
+      {
+        "title": "Litecoin",
+        "image": {
+          "src": "/imgs/logos/ltc@2x.png",
+          "alt": "Litecoin"
+        }
+      },
+      {
+        "title": "Uniswap",
+        "image": {
+          "src": "/imgs/logos/uni@2x.png",
+          "alt": "Uniswap"
+        }
+      },
+      {
+        "title": "Cosmos",
+        "image": {
+          "src": "/imgs/logos/atom@2x.png",
+          "alt": "Cosmos"
+        }
+      },
+      {
+        "title": "Algorand",
+        "image": {
+          "src": "/imgs/logos/algo@2x.png",
+          "alt": "Algorand"
+        }
+      },
+      {
+        "title": "Aave",
+        "image": {
+          "src": "/imgs/logos/aave@2x.png",
+          "alt": "Aave"
+        }
+      },
+      {
+        "title": "Filecoin",
+        "image": {
+          "src": "/imgs/logos/fil@2x.png",
+          "alt": "Filecoin"
+        }
+      },
+      {
+        "title": "Tron",
+        "image": {
+          "src": "/imgs/logos/trx@2x.png",
+          "alt": "Tron"
+        }
+      },
+      {
+        "title": "Stellar",
+        "image": {
+          "src": "/imgs/logos/xlm@2x.png",
+          "alt": "Stellar"
+        }
+      }
+    ]
+  },
+  "introduce": {
+    "name": "introduce",
+    "title": "What is Narra Agent",
+    "label": "Introduce",
+    "description": "Narra Agent is your AI-powered crypto intelligence platform, delivering advanced research, automated execution, and comprehensive market analytics across multiple blockchain networks.",
+    "image": {
+      "src": "/imgs/features/1.png"
+    },
+    "items": [
+      {
+        "title": "Deep Market Research",
+        "description": "Access real-time data aggregation from top sources including on-chain analytics, social sentiment, and institutional flows.",
+        "icon": "RiSearchEyeLine"
+      },
+      {
+        "title": "Automated Execution",
+        "description": "Execute strategies with precision across 50+ chains and 500+ protocols, from DeFi to NFT markets.",
+        "icon": "RiRocket2Line"
+      },
+      {
+        "title": "Real-Time Intelligence",
+        "description": "Stay ahead with continuous market monitoring, instant alerts, and AI-driven predictive insights.",
+        "icon": "RiFlashlightLine"
+      }
+    ]
+  },
+  "benefit": {
+    "name": "benefit",
+    "title": "Why Narra Agent Dominates",
+    "label": "Benefits",
+    "description": "Experience the most comprehensive crypto intelligence platform built for professionals who refuse to settle for less.",
+    "items": [
+      {
+        "title": "Unified Command Center",
+        "description": "One platform for research, execution, risk management, and portfolio tracking. No more juggling between dozens of tools and dashboards.",
+        "icon": "RiDashboardLine",
+        "image": {
+          "src": "/imgs/features/2.png"
+        }
+      },
+      {
+        "title": "Multi-Modal Intelligence",
+        "description": "Visual heatmaps, trend scorecards, sentiment analysis, and whale tracking combined with natural language insights you can actually understand.",
+        "icon": "RiBarChartBoxLine",
+        "image": {
+          "src": "/imgs/features/3.png"
+        }
+      },
+      {
+        "title": "Zero-Latency Execution",
+        "description": "Direct connections to major exchanges and DEXs with sub-millisecond latency. When opportunities appear, you're already in.",
+        "icon": "RiTimeLine",
+        "image": {
+          "src": "/imgs/features/4.png"
+        }
+      }
+    ]
+  },
+  "usage": {
+    "name": "usage",
+    "title": "Get Started in Minutes",
+    "description": "From signup to first trade - experience the fastest onboarding in crypto:",
+    "image": {
+      "src": "/imgs/features/1.png"
+    },
+    "image_position": "left",
+    "text_align": "center",
+    "items": [
+      {
+        "title": "Connect Your Wallets",
+        "description": "Securely link exchanges and wallets with read-only API keys. Your funds never leave your control.",
+        "image": {
+          "src": "/imgs/features/5.png"
+        }
+      },
+      {
+        "title": "Configure Intelligence",
+        "description": "Set your risk parameters, preferred chains, and notification preferences. Narra Agent adapts to your strategy.",
+        "image": {
+          "src": "/imgs/features/6.png"
+        }
+      },
+      {
+        "title": "Deploy Your Strategies",
+        "description": "Choose from pre-built strategies or create custom automation. Backtesting included before going live.",
+        "image": {
+          "src": "/imgs/features/7.png"
+        }
+      },
+      {
+        "title": "Monitor & Optimize",
+        "description": "Track performance in real-time with comprehensive analytics. Continuously refine your edge with AI recommendations.",
+        "image": {
+          "src": "/imgs/features/8.png"
+        }
+      }
+    ]
+  },
+  "feature": {
+    "name": "feature",
+    "title": "Enterprise-Grade Features",
+    "description": "Everything professional traders and institutions need to maintain their competitive edge.",
+    "items": [
+      {
+        "title": "AI Research Assistant",
+        "description": "Natural language queries across on-chain data, news, social signals, and technical indicators. Get answers in seconds, not hours.",
+        "icon": "RiRobot2Line"
+      },
+      {
+        "title": "Smart Order Routing",
+        "description": "Automatically find best execution across CEXs and DEXs with MEV protection and slippage optimization.",
+        "icon": "RiRouteLine"
+      },
+      {
+        "title": "Risk Intelligence",
+        "description": "Real-time portfolio risk scoring, correlation analysis, and automated circuit breakers to protect your capital.",
+        "icon": "RiShieldCheckLine"
+      },
+      {
+        "title": "Multi-Chain Portfolio",
+        "description": "Unified view of holdings across 50+ chains with automatic cost basis tracking and tax reporting.",
+        "icon": "RiPieChartLine"
+      },
+      {
+        "title": "Social Sentiment Engine",
+        "description": "Track whale movements, influencer activity, and community sentiment with AI-powered signal filtering.",
+        "icon": "RiPulseLine"
+      },
+      {
+        "title": "Custom Strategies",
+        "description": "Build and backtest trading strategies with no-code interface or Python SDK for advanced users.",
+        "icon": "RiCodeSSlashLine"
+      }
+    ]
+  },
+  "stats": {
+    "name": "stats",
+    "label": "Stats",
+    "title": "Trusted by Crypto Professionals",
+    "description": "Numbers that speak for themselves.",
+    "icon": "FaRegHeart",
+    "items": [
+      {
+        "title": "Active Traders",
+        "label": "10K+",
+        "description": "Worldwide"
+      },
+      {
+        "title": "Daily Volume",
+        "label": "$500M+",
+        "description": "Processed"
+      },
+      {
+        "title": "Chains Supported",
+        "label": "50+",
+        "description": "Networks"
+      }
+    ]
+  },
+  "testimonial": {
+    "name": "testimonial",
+    "label": "Testimonial",
+    "title": "What Traders Say About Narra Agent",
+    "description": "Real feedback from professionals who trade smarter with Narra Agent.",
+    "icon": "GoThumbsup",
+    "items": [
+      {
+        "title": "Alex M.",
+        "label": "Professional DeFi Trader",
+        "description": "Narra Agent's multi-chain research capabilities saved me 10+ hours per day. I spotted the PEPE opportunity 6 hours before mainstream and 3x'd my position. This is the edge I needed.",
+        "image": {
+          "src": "/imgs/users/1.png"
+        }
+      },
+      {
+        "title": "Sarah Chen",
+        "label": "Portfolio Manager at UltraThink",
+        "description": "We manage $50M across DeFi protocols. Narra Agent's risk intelligence and automated rebalancing have reduced our drawdowns by 40% while improving returns. Absolute game-changer.",
+        "image": {
+          "src": "/imgs/users/2.png"
+        }
+      },
+      {
+        "title": "Marcus Patel",
+        "label": "Crypto Hedge Fund Analyst",
+        "description": "The sentiment engine is unmatched. We caught Arbitrum's airdrop farmers dumping before it hit Twitter. Saved our fund 7 figures in a single trade.",
+        "image": {
+          "src": "/imgs/users/3.png"
+        }
+      },
+      {
+        "title": "Jessica Liu",
+        "label": "NFT Whale & Collector",
+        "description": "Narra Agent tracks blue-chip NFT floor prices across 15 chains simultaneously. I auto-bought BAYC derivatives during the dip and flipped for 2.3x profit in 48 hours.",
+        "image": {
+          "src": "/imgs/users/4.png"
+        }
+      },
+      {
+        "title": "David Rodriguez",
+        "label": "Smart Contract Developer",
+        "description": "As a dev, I need deep on-chain analytics. Narra Agent's Python SDK let me build custom strategies in hours. Already automated 3 MEV strategies with 85%+ win rate.",
+        "image": {
+          "src": "/imgs/users/5.png"
+        }
+      },
+      {
+        "title": "Emily Zhang",
+        "label": "Retail Trader → Full-Time",
+        "description": "Started with $10K six months ago. Narra Agent's backtesting and risk management helped me grow to $180K. Quit my job last month. This platform changed my life.",
+        "image": {
+          "src": "/imgs/users/6.png"
+        }
+      }
+    ]
+  },
+  "faq": {
+    "name": "faq",
+    "label": "FAQ",
+    "title": "Frequently Asked Questions About Narra Agent",
+    "description": "Have another question? Join our Discord or reach out on X.",
+    "items": [
+      {
+        "title": "How does Narra Agent differ from other crypto trading platforms?",
+        "description": "Narra Agent combines research, execution, and risk management in one unified platform. While others focus on just trading or just analytics, we provide the complete intelligence stack with AI-powered insights across 50+ chains, real-time sentiment analysis, and institutional-grade execution infrastructure."
+      },
+      {
+        "title": "Is my capital secure with Narra Agent?",
+        "description": "Absolutely. Narra Agent uses read-only API keys for exchange connections and non-custodial wallet integrations. Your funds never touch our systems. You maintain complete control while we provide the intelligence and automation layer on top."
+      },
+      {
+        "title": "What chains and protocols does Narra Agent support?",
+        "description": "We support 50+ blockchain networks including BNB Chain, Ethereum, Solana, Polygon, Avalanche, Arbitrum, Optimism, and more. Integration covers 500+ DeFi protocols, major CEXs, and NFT marketplaces. New chains are added continuously based on user demand."
+      },
+      {
+        "title": "Do I need coding experience to use Narra Agent?",
+        "description": "No coding required for core features. Our no-code strategy builder and pre-built templates work out of the box. However, advanced users can leverage our Python SDK and REST API for custom strategies and integrations."
+      },
+      {
+        "title": "What's included in each pricing tier?",
+        "description": "All tiers include core research and portfolio tracking. Higher tiers unlock automated execution, advanced risk management, unlimited backtesting, priority data feeds, and institutional features. Check our pricing page for detailed comparisons."
+      },
+      {
+        "title": "Can I try Narra Agent before committing?",
+        "description": "Yes! Start with our free tier to explore research features and portfolio tracking. When you're ready to scale, upgrade to unlock automation and advanced features. No credit card required for free tier."
+      }
+    ]
+  },
+  "cta": {
+    "name": "cta",
+    "title": "Start Trading Smarter Today",
+    "description": "Join thousands of traders who dominate markets with Narra Agent.",
+    "buttons": [
+      {
+        "title": "Get Started Free",
+        "url": "/",
+        "target": "_self",
+        "icon": "GoArrowUpRight"
+      },
+      {
+        "title": "View Documentation",
+        "url": "/docs",
+        "target": "_self",
+        "variant": "outline"
+      }
+    ]
+  },
+  "footer": {
+    "name": "footer",
+    "brand": {
+      "title": "Narra Agent",
+      "description": "Your next-gen crypto intelligence hub. AI-powered research, automated execution, and real-time insights across 50+ chains.",
+      "logo": {
+        "src": "/logo.svg",
+        "alt": "Narra Agent"
+      },
+      "url": "/"
+    },
+    "copyright": "© 2025 • Narra Agent. All rights reserved.",
+    "nav": {
+      "items": [
+        {
+          "title": "Product",
+          "children": [
+            {
+              "title": "Features",
+              "url": "/home#feature",
+              "target": "_self"
+            },
+            {
+              "title": "Pricing",
+              "url": "/pricing",
+              "target": "_self"
+            },
+            {
+              "title": "Showcase",
+              "url": "/showcase",
+              "target": "_self"
+            }
+          ]
+        },
+        {
+          "title": "Resources",
+          "children": [
+            {
+              "title": "Documentation",
+              "url": "/docs",
+              "target": "_self"
+            },
+            {
+              "title": "Blog",
+              "url": "/posts",
+              "target": "_self"
+            },
+            {
+              "title": "API Reference",
+              "url": "/docs/api",
+              "target": "_self"
+            }
+          ]
+        },
+        {
+          "title": "Community",
+          "children": [
+            {
+              "title": "Discord",
+              "url": "https://discord.com/",
+              "target": "_blank"
+            },
+            {
+              "title": "X (Twitter)",
+              "url": "https://x.com/narralayer",
+              "target": "_blank"
+            },
+            {
+              "title": "GitHub",
+              "url": "https://github.com/",
+              "target": "_blank"
+            }
+          ]
+        }
+      ]
+    },
+    "social": {
+      "items": [
+        {
+          "title": "X",
+          "icon": "RiTwitterXFill",
+          "url": "https://x.com/narralayer",
+          "target": "_blank"
+        },
+        {
+          "title": "Github",
+          "icon": "RiGithubFill",
+          "url": "https://github.com/",
+          "target": "_blank"
+        },
+        {
+          "title": "Discord",
+          "icon": "RiDiscordFill",
+          "url": "https://discord.com/",
+          "target": "_blank"
+        }
+      ]
+    },
+    "agreement": {
+      "items": [
+        {
+          "title": "Privacy Policy",
+          "url": "/privacy-policy"
+        },
+        {
+          "title": "Terms of Service",
+          "url": "/terms-of-service"
+        }
+      ]
+    }
+  }
+}
