@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { Message } from "./chat-context";
 import { UserAvatar } from "@/components/ui/user-avatar";
 import { useAppContext } from "@/contexts/app";
@@ -8,6 +9,8 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeRaw from "rehype-raw";
 import rehypeSanitize from "rehype-sanitize";
+import { ChevronDownIcon, ChevronUpIcon } from "@radix-ui/react-icons";
+import { useChatContext } from "./chat-context";
 
 interface ChatMessageProps {
   message: Message;
@@ -15,7 +18,20 @@ interface ChatMessageProps {
 
 export function ChatMessage({ message }: ChatMessageProps) {
   const { user } = useAppContext();
+  const { isLoading, generatingMessageId } = useChatContext();
   const isUser = message.role === "user";
+
+  // 动态计算是否展开：AI消息 + 有reasoning + 当前消息正在生成中 = 展开
+  const shouldShowReasoning = !isUser && !!message.reasoning && isLoading && message.id === generatingMessageId;
+  const [manualToggle, setManualToggle] = useState<boolean | null>(null);
+
+  // 最终展开状态：如果用户手动切换过，使用手动状态；否则使用自动状态
+  const showReasoning = manualToggle !== null ? manualToggle : shouldShowReasoning;
+
+  // 当 isLoading 或 generatingMessageId 变化时，重置手动切换状态
+  useEffect(() => {
+    setManualToggle(null);
+  }, [isLoading, generatingMessageId]);
 
   return (
     <div
@@ -38,6 +54,30 @@ export function ChatMessage({ message }: ChatMessageProps) {
             minute: "2-digit",
           })}
         </span>
+
+        {/* 思考过程(仅AI消息且有reasoning时显示) */}
+        {!isUser && message.reasoning && (
+          <div className="mb-4">
+            <button
+              onClick={() => setManualToggle(!showReasoning)}
+              className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors py-2 px-3 rounded-lg hover:bg-muted/50"
+            >
+              {showReasoning ? (
+                <ChevronUpIcon className="w-4 h-4" />
+              ) : (
+                <ChevronDownIcon className="w-4 h-4" />
+              )}
+              <span className="font-medium">🧠 思考过程</span>
+              <span className="text-xs opacity-70">({message.reasoning.split('\n').filter(Boolean).length} 条推理)</span>
+            </button>
+
+            {showReasoning && (
+              <div className="mt-2 p-4 rounded-lg bg-muted/30 border border-border/50 font-mono text-xs overflow-x-auto">
+                <pre className="whitespace-pre-wrap text-muted-foreground">{message.reasoning}</pre>
+              </div>
+            )}
+          </div>
+        )}
 
         <div
           className={cn(

@@ -11,7 +11,7 @@ import { ReloadIcon } from "@radix-ui/react-icons";
 
 export function ChatConversation() {
   const t = useTranslations("chat");
-  const { currentMessages, addMessage, updateMessage, isLoading, setIsLoading, conversations, currentConversationId, createNewConversation } = useChatContext();
+  const { currentMessages, addMessage, updateMessage, updateMessageReasoning, isLoading, setIsLoading, conversations, currentConversationId, createNewConversation, setGeneratingMessageId } = useChatContext();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [error, setError] = useState<string | null>(null);
   const [inputValue, setInputValue] = useState(""); // 控制输入框的值
@@ -59,6 +59,7 @@ export function ChatConversation() {
       const reader = response.body?.getReader();
       const decoder = new TextDecoder();
       let accumulatedContent = "";
+      let accumulatedReasoning = ""; // 累积思考过程
 
       if (!reader) {
         throw new Error("No response body");
@@ -66,6 +67,7 @@ export function ChatConversation() {
 
       // 创建一个AI消息并获取其ID
       const assistantMessageId = addMessage({ role: "assistant", content: "" });
+      setGeneratingMessageId(assistantMessageId);
 
       while (true) {
         const { done, value } = await reader.read();
@@ -77,29 +79,39 @@ export function ChatConversation() {
         for (const line of lines) {
           if (line.startsWith("data: ")) {
             const data = line.slice(6).trim();
+
             if (data === "[DONE]") continue;
 
             try {
               const parsed = JSON.parse(data);
 
               // 处理不同类型的事件
-              if (parsed.event === "report_chunk" && parsed.data?.content) {
+              if (parsed.event === "reasoning" && parsed.data?.message) {
+                // 累积思考过程
+                const reasoningContent = parsed.data.message;
+                accumulatedReasoning += reasoningContent + "\n";
+
+                // 实时更新思考过程
+                updateMessageReasoning(assistantMessageId, accumulatedReasoning);
+              } else if (parsed.event === "report_chunk" && parsed.data?.content) {
                 // 累积报告内容
                 const content = parsed.data.content.trim();
+
                 if (content.length > 0) {
                   accumulatedContent += content;
+
                   // 实时更新同一个AI消息
                   updateMessage(assistantMessageId, accumulatedContent);
                 }
               } else if (parsed.event === "complete" && parsed.data?.final_report) {
                 // 最终报告,替换所有累积内容
                 accumulatedContent = parsed.data.final_report;
+
                 updateMessage(assistantMessageId, accumulatedContent);
               }
-              // 忽略 reasoning 和 start 事件
             } catch (e) {
               // 忽略JSON解析错误
-              console.debug("Failed to parse SSE data:", e);
+              console.warn("Failed to parse SSE data:", data);
             }
           }
         }
@@ -118,6 +130,7 @@ export function ChatConversation() {
       });
     } finally {
       setIsLoading(false);
+      setGeneratingMessageId(null);
     }
   };
 

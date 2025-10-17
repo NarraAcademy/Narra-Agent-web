@@ -6,6 +6,7 @@ export interface Message {
   id: string;
   role: "user" | "assistant";
   content: string;
+  reasoning?: string; // 思考过程(仅assistant消息有)
   timestamp: number;
 }
 
@@ -27,9 +28,12 @@ interface ChatContextType {
   setCurrentConversation: (id: string) => void;
   addMessage: (message: Omit<Message, "id" | "timestamp">, conversationId?: string) => string; // 返回消息ID，可指定对话ID
   updateMessage: (messageId: string, content: string) => void;
+  updateMessageReasoning: (messageId: string, reasoning: string) => void; // 更新思考过程
   currentMessages: Message[];
   isLoading: boolean;
   setIsLoading: (loading: boolean) => void;
+  generatingMessageId: string | null; // 正在生成的消息ID
+  setGeneratingMessageId: (id: string | null) => void;
 }
 
 const ChatContext = createContext<ChatContextType | undefined>(undefined);
@@ -42,6 +46,7 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
     string | null
   >(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [generatingMessageId, setGeneratingMessageId] = useState<string | null>(null);
 
   // 从localStorage加载数据
   useEffect(() => {
@@ -162,6 +167,25 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
     );
   };
 
+  const updateMessageReasoning = (messageId: string, reasoning: string) => {
+    if (!currentConversationId) return;
+
+    setConversations((prev) =>
+      prev.map((c) => {
+        if (c.id === currentConversationId) {
+          return {
+            ...c,
+            messages: c.messages.map((msg) =>
+              msg.id === messageId ? { ...msg, reasoning } : msg
+            ),
+            updatedAt: Date.now(),
+          };
+        }
+        return c;
+      })
+    );
+  };
+
   const currentMessages =
     conversations.find((c) => c.id === currentConversationId)?.messages || [];
 
@@ -177,9 +201,12 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
         setCurrentConversation,
         addMessage,
         updateMessage,
+        updateMessageReasoning,
         currentMessages,
         isLoading,
         setIsLoading,
+        generatingMessageId,
+        setGeneratingMessageId,
       }}
     >
       {children}
