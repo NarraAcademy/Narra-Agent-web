@@ -244,8 +244,9 @@ export function ChatConversation() {
       setCurrentSteps((prevSteps) => {
         const finalSteps = Array.from(prevSteps.values());
         if (finalSteps.length > 0 && assistantMessageId) {
+          const messageId = assistantMessageId; // 捕获值以解决TypeScript类型问题
           setTimeout(() => {
-            updateMessageSteps(assistantMessageId, finalSteps, targetConversationId);
+            updateMessageSteps(messageId, finalSteps, targetConversationId);
           }, 0);
         }
         return new Map();
