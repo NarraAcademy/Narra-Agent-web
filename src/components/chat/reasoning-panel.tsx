@@ -46,16 +46,16 @@ export function ReasoningPanel({ message, isGenerating = false }: ReasoningPanel
               opacity: 1,
               height: "auto",
               transition: {
-                height: { duration: 0.3, ease: "easeOut" },
-                opacity: { duration: 0.25 }
+                height: { duration: 0.45, ease: [0.25, 0.1, 0.25, 1] },
+                opacity: { duration: 0.35, ease: [0.25, 0.1, 0.25, 1] }
               }
             }}
             exit={{
               opacity: 0,
               height: 0,
               transition: {
-                height: { duration: 0.25, ease: "easeIn" },
-                opacity: { duration: 0.2 }
+                height: { duration: 0.35, ease: "easeIn" },
+                opacity: { duration: 0.25 }
               }
             }}
             className="overflow-hidden"
@@ -67,8 +67,8 @@ export function ReasoningPanel({ message, isGenerating = false }: ReasoningPanel
               variants={{
                 visible: {
                   transition: {
-                    staggerChildren: 0.05,
-                    delayChildren: 0.05
+                    staggerChildren: 0.08,
+                    delayChildren: 0.08
                   }
                 }
               }}
@@ -78,13 +78,13 @@ export function ReasoningPanel({ message, isGenerating = false }: ReasoningPanel
                 <motion.div
                   key={step.id}
                   variants={{
-                    hidden: { opacity: 0, y: 4 },
+                    hidden: { opacity: 0, y: -12 },
                     visible: {
                       opacity: 1,
                       y: 0,
                       transition: {
-                        duration: 0.3,
-                        ease: "easeOut"
+                        duration: 0.45,
+                        ease: [0.25, 0.1, 0.25, 1]
                       }
                     }
                   }}
@@ -97,13 +97,13 @@ export function ReasoningPanel({ message, isGenerating = false }: ReasoningPanel
               {message.metadata && (
                 <motion.div
                   variants={{
-                    hidden: { opacity: 0, y: 4 },
+                    hidden: { opacity: 0, y: -12 },
                     visible: {
                       opacity: 1,
                       y: 0,
                       transition: {
-                        duration: 0.3,
-                        ease: "easeOut"
+                        duration: 0.45,
+                        ease: [0.25, 0.1, 0.25, 1]
                       }
                     }
                   }}

@@ -136,8 +136,8 @@ const WorkflowStepCardComponent = ({ step }: WorkflowStepCardProps) => {
           variants={{
             visible: {
               transition: {
-                staggerChildren: 0.04,
-                delayChildren: 0.03
+                staggerChildren: 0.07,
+                delayChildren: 0.05
               }
             }
           }}
@@ -146,12 +146,13 @@ const WorkflowStepCardComponent = ({ step }: WorkflowStepCardProps) => {
             <motion.div
               key={reasoning.id}
               variants={{
-                hidden: { opacity: 0 },
+                hidden: { opacity: 0, y: -8 },
                 visible: {
                   opacity: 1,
+                  y: 0,
                   transition: {
-                    duration: 0.25,
-                    ease: "easeOut"
+                    duration: 0.38,
+                    ease: [0.25, 0.1, 0.25, 1]
                   }
                 }
               }}
