@@ -4,22 +4,25 @@ import React, { createContext, useContext, useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useLocale } from "next-intl";
 
+// Agent名称类型
+export type AgentName = "Coordinator" | "CoinGecko" | "Project" | "News" | "Synthesizer" | "System";
+
 // 推理小步骤
 export interface ReasoningStep {
   id: string;
-  content: string; // 推理文本内容（后端字段名是content）
+  content: string; // 推理内容（后端字段名是content）
   agent: string; // Agent名称（后端字段名是agent）
-  category: "search" | "browse" | "analyze" | "tool_call" | "status" | "info";
+  category?: "search" | "browse" | "analyze" | "tool_call" | "status" | "info"; // 可选的分类标签
   metadata?: Record<string, any>; // 元数据，如 {url: "...", duration: 1.5}
   step_id?: string; // 所属大步骤ID（可选）
-  timestamp: string; // ISO 8601格式时间戳
+  timestamp?: string; // ISO 8601格式时间戳（可选）
 }
 
 // 工作流大步骤
 export interface WorkflowStep {
   id: string; // 步骤ID（step_id）
   title?: string; // 步骤标题
-  agent?: string; // Agent名称
+  agent?: AgentName; // Agent名称（使用严格类型）
   status?: "pending" | "running" | "completed" | "error";
   reasoning: ReasoningStep[]; // 该步骤下的推理列表
   timestamp?: string; // ISO 8601格式时间戳

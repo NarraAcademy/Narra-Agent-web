@@ -1,10 +1,11 @@
 "use client";
 
 import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { Message } from "./chat-context";
 import { WorkflowStepCard } from "./workflow-step-card";
 import { MetadataDisplay } from "./metadata-display";
-import { ChevronDownIcon, ChevronUpIcon } from "@radix-ui/react-icons";
+import { ChevronDownIcon, ChevronUpIcon, SymbolIcon } from "@radix-ui/react-icons";
 
 interface ReasoningPanelProps {
   message: Message;
@@ -22,41 +23,98 @@ export function ReasoningPanel({ message, isGenerating = false }: ReasoningPanel
   }
 
   return (
-    <div className="mb-4">
+    <div className="mb-3">
       {/* 折叠按钮 */}
       <button
         onClick={() => setManualToggle(!showReasoning)}
-        className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors py-2 px-3 rounded-lg hover:bg-muted/50"
+        className="flex items-center gap-1.5 text-lg text-muted-foreground hover:text-foreground transition-colors py-1"
       >
         {showReasoning ? (
           <ChevronUpIcon className="w-4 h-4" />
         ) : (
           <ChevronDownIcon className="w-4 h-4" />
         )}
-        <span className="font-medium">🧠 推理过程</span>
-        <span className="text-xs opacity-70">
-          ({message.steps.length} 个步骤)
-        </span>
+        <span className="font-medium">推理过程</span>
       </button>
 
-      {/* 推理内容 */}
-      {showReasoning && (
-        <div className="mt-2 space-y-3">
-          {/* 工作流步骤列表 */}
-          {message.steps.map((step) => (
-            <WorkflowStepCard
-              key={step.id}
-              step={step}
-              defaultExpanded={isGenerating} // 生成中时默认展开所有步骤
-            />
-          ))}
+      {/* Reasoning content - Sequential fade-in animation */}
+      <AnimatePresence initial={false}>
+        {showReasoning && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{
+              opacity: 1,
+              height: "auto",
+              transition: {
+                height: { duration: 0.3, ease: "easeOut" },
+                opacity: { duration: 0.25 }
+              }
+            }}
+            exit={{
+              opacity: 0,
+              height: 0,
+              transition: {
+                height: { duration: 0.25, ease: "easeIn" },
+                opacity: { duration: 0.2 }
+              }
+            }}
+            className="overflow-hidden"
+          >
+            <motion.div
+              className="mt-2 space-y-2"
+              initial="hidden"
+              animate="visible"
+              variants={{
+                visible: {
+                  transition: {
+                    staggerChildren: 0.05,
+                    delayChildren: 0.05
+                  }
+                }
+              }}
+            >
+              {/* Workflow steps list - Simple fade-in */}
+              {message.steps.map((step) => (
+                <motion.div
+                  key={step.id}
+                  variants={{
+                    hidden: { opacity: 0, y: 4 },
+                    visible: {
+                      opacity: 1,
+                      y: 0,
+                      transition: {
+                        duration: 0.3,
+                        ease: "easeOut"
+                      }
+                    }
+                  }}
+                >
+                  <WorkflowStepCard step={step} />
+                </motion.div>
+              ))}
 
-          {/* 元数据显示 */}
-          {message.metadata && (
-            <MetadataDisplay metadata={message.metadata} />
-          )}
-        </div>
-      )}
+              {/* Metadata display */}
+              {message.metadata && (
+                <motion.div
+                  variants={{
+                    hidden: { opacity: 0, y: 4 },
+                    visible: {
+                      opacity: 1,
+                      y: 0,
+                      transition: {
+                        duration: 0.3,
+                        ease: "easeOut"
+                      }
+                    }
+                  }}
+                >
+                  <MetadataDisplay metadata={message.metadata} />
+                </motion.div>
+              )}
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

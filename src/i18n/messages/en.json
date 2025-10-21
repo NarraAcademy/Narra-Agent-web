@@ -151,10 +151,28 @@
     "error_send_failed": "Failed to send message, please try again",
     "error_no_response": "Sorry, I didn't receive any response.",
     "error_generic": "Sorry, I encountered some issues. Please try again later.",
+    "preset_tabs": {
+      "hot_topics": "Hot Topics",
+      "market_news": "Market News"
+    },
     "preset_questions": {
-      "analyze_crypto": "Analyze cryptocurrency market trends and data",
-      "crypto_news": "What important crypto news today?",
-      "defi_risk": "How to assess risks in a DeFi project?"
+      "analyze_crypto": "Momentum Finance raises $20M: Will Q4 launch make it the next big thing?",
+      "crypto_news": "Polymarket launches Pro - Can prediction markets go mainstream?",
+      "defi_risk": "Bitcoin has 50%+ chance to drop below $100K - What's the bull strategy?"
+    },
+    "market_news": {
+      "solana_ai_dex": {
+        "title": "Solana Co-Founder Uses AI for Percolator DEX Development",
+        "time": "11:13"
+      },
+      "blackrock_btc_etp": {
+        "title": "BlackRock Launches Bitcoin ETP on London Stock Exchange",
+        "time": "11:10"
+      },
+      "musk_floki_rally": {
+        "title": "FLOKI Surges 30% After Musk Shares AI-Generated Dog Video on X",
+        "time": "11:05"
+      }
     },
     "invite_card": {
       "title": "Share Narra Agent with Friends",

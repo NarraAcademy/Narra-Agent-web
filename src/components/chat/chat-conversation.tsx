@@ -10,6 +10,7 @@ import { ChatInput } from "./chat-input";
 import { Button } from "@/components/ui/button";
 import { ReloadIcon } from "@radix-ui/react-icons";
 import { ReasoningPanel } from "./reasoning-panel";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 
 export function ChatConversation() {
   const t = useTranslations("chat");
@@ -142,6 +143,7 @@ export function ChatConversation() {
 
                 case "reasoning":
                   if (parsed.data) {
+                    console.log("[ChatConversation] 收到reasoning数据:", parsed.data);
                     const reasoningItem: ReasoningStep = {
                       id: `reasoning-${Date.now()}-${Math.random()}`,
                       content: parsed.data.content || "",
@@ -149,7 +151,7 @@ export function ChatConversation() {
                       category: parsed.data.category || "info",
                       metadata: parsed.data.metadata,
                       step_id: parsed.data.step_id,
-                      timestamp: parsed.data.timestamp || new Date().toISOString(),
+                      timestamp: parsed.data.timestamp,
                     };
 
                     const stepId = reasoningItem.step_id || "default-step";
@@ -358,33 +360,95 @@ export function ChatConversation() {
               />
             </motion.div>
 
-            {/* 预设问题 */}
-            <div className="grid grid-cols-1 gap-3">
-              {[
-                t("preset_questions.analyze_crypto"),
-                t("preset_questions.crypto_news"),
-                t("preset_questions.defi_risk"),
-              ].map((prompt, i) => (
-                <motion.div
-                  key={i}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{
-                    duration: 0.5,
-                    delay: 0.1 + i * 0.1,
-                    ease: "easeOut"
-                  }}
+            {/* 预设问题 - Tabs版本 */}
+            <Tabs defaultValue="hot_topics" className="w-full">
+              <TabsList className="w-full mb-4 bg-transparent p-0 h-auto border-b border-border">
+                <TabsTrigger
+                  value="hot_topics"
+                  className="flex-1 rounded-none border-x-0 border-t-0 border-b-2 border-transparent data-[state=active]:!border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none pb-3 font-medium"
                 >
-                  <Button
-                    variant="outline"
-                    className="w-full text-left justify-start h-auto py-4 px-5 text-base transition-all hover:scale-[1.02]"
-                    onClick={() => !isLoading && setInputValue(prompt)}
-                  >
-                    {prompt}
-                  </Button>
-                </motion.div>
-              ))}
-            </div>
+                  {t("preset_tabs.hot_topics")}
+                </TabsTrigger>
+                <TabsTrigger
+                  value="market_news"
+                  className="flex-1 rounded-none border-x-0 border-t-0 border-b-2 border-transparent data-[state=active]:!border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none pb-3 font-medium"
+                >
+                  {t("preset_tabs.market_news")}
+                </TabsTrigger>
+              </TabsList>
+
+              {/* Tab 1: 热点话题 */}
+              <TabsContent value="hot_topics">
+                <div className="grid grid-cols-1 gap-3">
+                  {[
+                    t("preset_questions.analyze_crypto"),
+                    t("preset_questions.crypto_news"),
+                    t("preset_questions.defi_risk"),
+                  ].map((prompt, i) => (
+                    <motion.div
+                      key={i}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{
+                        duration: 0.5,
+                        delay: 0.1 + i * 0.1,
+                        ease: "easeOut"
+                      }}
+                    >
+                      <Button
+                        variant="outline"
+                        className="w-full text-left justify-start h-auto py-4 px-5 text-base transition-all hover:scale-[1.02]"
+                        onClick={() => !isLoading && setInputValue(prompt)}
+                      >
+                        {prompt}
+                      </Button>
+                    </motion.div>
+                  ))}
+                </div>
+              </TabsContent>
+
+              {/* Tab 2: 市场快讯 */}
+              <TabsContent value="market_news">
+                <div className="grid grid-cols-1 gap-3">
+                  {[
+                    {
+                      title: t("market_news.solana_ai_dex.title"),
+                      time: t("market_news.solana_ai_dex.time"),
+                    },
+                    {
+                      title: t("market_news.blackrock_btc_etp.title"),
+                      time: t("market_news.blackrock_btc_etp.time"),
+                    },
+                    {
+                      title: t("market_news.musk_floki_rally.title"),
+                      time: t("market_news.musk_floki_rally.time"),
+                    },
+                  ].map((news, i) => (
+                    <motion.div
+                      key={i}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{
+                        duration: 0.5,
+                        delay: 0.1 + i * 0.1,
+                        ease: "easeOut"
+                      }}
+                    >
+                      <Button
+                        variant="outline"
+                        className="w-full text-left justify-between h-auto py-4 px-5 text-base transition-all hover:scale-[1.02] flex items-center gap-3"
+                        onClick={() => !isLoading && setInputValue(news.title)}
+                      >
+                        <span className="flex-1">{news.title}</span>
+                        <span className="text-xs text-muted-foreground font-mono bg-muted px-2 py-1 rounded shrink-0">
+                          {news.time}
+                        </span>
+                      </Button>
+                    </motion.div>
+                  ))}
+                </div>
+              </TabsContent>
+            </Tabs>
           </div>
         </div>
       ) : (
@@ -434,23 +498,6 @@ export function ChatConversation() {
             )}
             <div ref={messagesEndRef} />
           </div>
-
-          {/* 状态栏 - 显示实时状态消息 */}
-          {isLoading && statusMessage && (
-            <div className="px-4 py-2 bg-blue-500/10 text-blue-600 dark:text-blue-400 text-sm border-t border-blue-500/20">
-              <div className="flex items-center gap-2">
-                <ReloadIcon className="w-4 h-4 animate-spin" />
-                <span>{statusMessage}</span>
-              </div>
-            </div>
-          )}
-
-          {/* 错误提示 */}
-          {error && (
-            <div className="px-4 py-2 bg-destructive/10 text-destructive text-sm border-t border-destructive/20">
-              {error}
-            </div>
-          )}
 
           {/* 浮动输入框 */}
           <ChatInput onSend={handleSend} disabled={isLoading} variant="floating" />

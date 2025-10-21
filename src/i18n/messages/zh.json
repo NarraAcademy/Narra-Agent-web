@@ -151,10 +151,28 @@
     "error_send_failed": "发送消息失败，请重试",
     "error_no_response": "抱歉，我没有收到任何响应。",
     "error_generic": "抱歉，我遇到了一些问题，请稍后再试。",
+    "preset_tabs": {
+      "hot_topics": "热点话题",
+      "market_news": "市场快讯"
+    },
     "preset_questions": {
-      "analyze_crypto": "分析加密货币市场趋势和数据",
-      "crypto_news": "今天加密货币市场有什么重要新闻？",
-      "defi_risk": "如何评估一个DeFi项目的风险？"
+      "analyze_crypto": "Momentum Finance近2000万美元融资，Q4上线能否成为下一个爆款？",
+      "crypto_news": "Polymarket推Pro版本，预测市场能否成为主流金融工具？",
+      "defi_risk": "Bitcoin跌破10万美元概率超50%，多头该如何布局？"
+    },
+    "market_news": {
+      "solana_ai_dex": {
+        "title": "Solana 联合创始人利用 AI 进行 Percolator DEX 开发",
+        "time": "11:13"
+      },
+      "blackrock_btc_etp": {
+        "title": "贝莱德在伦敦交易所推出比特币 ETP",
+        "time": "11:10"
+      },
+      "musk_floki_rally": {
+        "title": "马斯克在 X 上展示 AI 生成的狗狗视频后，FLOKI 股价反弹 30%",
+        "time": "11:05"
+      }
     },
     "invite_card": {
       "title": "与朋友分享 Narra Agent",
