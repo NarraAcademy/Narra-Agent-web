@@ -1,6 +1,5 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import { Message } from "./chat-context";
 import { UserAvatar } from "@/components/ui/user-avatar";
 import { useAppContext } from "@/contexts/app";
@@ -9,8 +8,9 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeRaw from "rehype-raw";
 import rehypeSanitize from "rehype-sanitize";
-import { ChevronDownIcon, ChevronUpIcon } from "@radix-ui/react-icons";
 import { useChatContext } from "./chat-context";
+import { ReasoningPanel } from "./reasoning-panel";
+import { useEffect, useState } from "react";
 
 interface ChatMessageProps {
   message: Message;
@@ -20,18 +20,44 @@ export function ChatMessage({ message }: ChatMessageProps) {
   const { user } = useAppContext();
   const { isLoading, generatingMessageId } = useChatContext();
   const isUser = message.role === "user";
+  const isGenerating = isLoading && message.id === generatingMessageId;
 
-  // 动态计算是否展开：AI消息 + 有reasoning + 当前消息正在生成中 = 展开
-  const shouldShowReasoning = !isUser && !!message.reasoning && isLoading && message.id === generatingMessageId;
-  const [manualToggle, setManualToggle] = useState<boolean | null>(null);
+  // 打字效果状态
+  const [displayContent, setDisplayContent] = useState(message.content);
 
-  // 最终展开状态：如果用户手动切换过，使用手动状态；否则使用自动状态
-  const showReasoning = manualToggle !== null ? manualToggle : shouldShowReasoning;
-
-  // 当 isLoading 或 generatingMessageId 变化时，重置手动切换状态
+  // 监听 message 变化并打印日志
   useEffect(() => {
-    setManualToggle(null);
-  }, [isLoading, generatingMessageId]);
+    console.log("[ChatMessage] 组件渲染/更新:", {
+      messageId: message.id,
+      role: message.role,
+      contentLength: message.content.length,
+      contentPreview: message.content.slice(0, 100),
+      isGenerating
+    });
+  }, [message.content, message.id, message.role, isGenerating]);
+
+  // 打字效果逻辑
+  useEffect(() => {
+    // 如果不是正在生成，直接显示全部内容
+    if (!isGenerating) {
+      setDisplayContent(message.content);
+      return;
+    }
+
+    // 从当前显示长度开始继续打字
+    let index = displayContent.length;
+    const timer = setInterval(() => {
+      if (index >= message.content.length) {
+        clearInterval(timer);
+        return;
+      }
+      // 每次显示8个字符，每50ms更新一次
+      index = Math.min(index + 8, message.content.length);
+      setDisplayContent(message.content.slice(0, index));
+    }, 50);
+
+    return () => clearInterval(timer);
+  }, [message.content, isGenerating, displayContent.length]);
 
   return (
     <div
@@ -55,29 +81,8 @@ export function ChatMessage({ message }: ChatMessageProps) {
           })}
         </span>
 
-        {/* 思考过程(仅AI消息且有reasoning时显示) */}
-        {!isUser && message.reasoning && (
-          <div className="mb-4">
-            <button
-              onClick={() => setManualToggle(!showReasoning)}
-              className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors py-2 px-3 rounded-lg hover:bg-muted/50"
-            >
-              {showReasoning ? (
-                <ChevronUpIcon className="w-4 h-4" />
-              ) : (
-                <ChevronDownIcon className="w-4 h-4" />
-              )}
-              <span className="font-medium">🧠 思考过程</span>
-              <span className="text-xs opacity-70">({message.reasoning.split('\n').filter(Boolean).length} 条推理)</span>
-            </button>
-
-            {showReasoning && (
-              <div className="mt-2 p-4 rounded-lg bg-muted/30 border border-border/50 font-mono text-xs overflow-x-auto">
-                <pre className="whitespace-pre-wrap text-muted-foreground">{message.reasoning}</pre>
-              </div>
-            )}
-          </div>
-        )}
+        {/* 新版推理面板(使用ReasoningPanel组件) */}
+        {!isUser && <ReasoningPanel message={message} isGenerating={isGenerating} />}
 
         <div
           className={cn(
@@ -175,7 +180,7 @@ export function ChatMessage({ message }: ChatMessageProps) {
               },
             }}
           >
-            {message.content}
+            {displayContent}
           </ReactMarkdown>
         </div>
       </div>

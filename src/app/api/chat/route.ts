@@ -1,3 +1,9 @@
+// 使用 Edge Runtime 以避免超时限制，支持长时间的 SSE 连接
+export const runtime = 'edge';
+
+// 延长超时时间到 5 分钟（仅在 Node.js runtime 生效）
+export const maxDuration = 300;
+
 export async function POST(req: Request) {
   try {
     const { message, useDeepThinking = true } = await req.json();
@@ -11,6 +17,8 @@ export async function POST(req: Request) {
 
     // 对接后端SSE接口
     const backendUrl = `https://narra-agent-engine-dev-875677964461.asia-southeast1.run.app/api/v1/workflows/alpha/stream?user_input=${encodeURIComponent(message)}&use_deep_thinking=${useDeepThinking}`;
+
+    console.log('[API /api/chat] 开始请求后端:', backendUrl);
 
     const response = await fetch(backendUrl, {
       method: "GET",
@@ -26,9 +34,13 @@ export async function POST(req: Request) {
       },
     });
 
+    console.log('[API /api/chat] 后端响应状态:', response.status);
+
     if (!response.ok) {
       throw new Error(`Backend API error: ${response.statusText}`);
     }
+
+    console.log('[API /api/chat] 开始转发 SSE 流');
 
     // 直接转发SSE流
     return new Response(response.body, {
@@ -36,10 +48,11 @@ export async function POST(req: Request) {
         "Content-Type": "text/event-stream",
         "Cache-Control": "no-cache",
         Connection: "keep-alive",
+        "X-Accel-Buffering": "no", // 禁用 Nginx 缓冲
       },
     });
   } catch (error) {
-    console.error("Chat API error:", error);
+    console.error("[API /api/chat] 错误:", error);
     return new Response(
       JSON.stringify({ error: "Failed to process chat request" }),
       {
