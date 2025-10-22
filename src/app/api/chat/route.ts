@@ -191,12 +191,18 @@ export async function POST(req: Request) {
                       // 流式输出文本内容
                       if (parsed.data && parsed.data.content) {
                         accumulatedContent += parsed.data.content;
+                        console.log(`[API /api/chat] 🌊 收到result事件chunk:`, {
+                          chunkLength: parsed.data.content.length,
+                          totalAccumulated: accumulatedContent.length,
+                          preview: parsed.data.content.slice(0, 50)
+                        });
                         // AI SDK Stream Protocol: 0: 表示文本内容
                         const textChunk = parsed.data.content
                           .replace(/\\/g, '\\\\')
                           .replace(/"/g, '\\"')
                           .replace(/\n/g, '\\n');
                         controller.enqueue(encoder.encode(`0:"${textChunk}"\n`));
+                        console.log(`[API /api/chat] ✅ 已发送chunk到响应流`);
                       }
                       break;
 
@@ -207,17 +213,6 @@ export async function POST(req: Request) {
                           tools_used: parsed.data.tools_used,
                           agents_used: parsed.data.agents_used,
                         };
-
-                        // 如果有final_report且与累积内容不同,发送最终文本
-                        const finalReport = parsed.data.final_report;
-                        if (finalReport && finalReport !== accumulatedContent) {
-                          const textChunk = finalReport
-                            .replace(/\\/g, '\\\\')
-                            .replace(/"/g, '\\"')
-                            .replace(/\n/g, '\\n');
-                          controller.enqueue(encoder.encode(`0:"${textChunk}"\n`));
-                          accumulatedContent = finalReport;
-                        }
 
                         // 标记所有steps为completed
                         steps.forEach(step => {

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Message } from "./chat-context";
 import { WorkflowStepCard } from "./workflow-step-card";
@@ -10,12 +10,19 @@ import { ChevronDownIcon, ChevronUpIcon, SymbolIcon } from "@radix-ui/react-icon
 interface ReasoningPanelProps {
   message: Message;
   isGenerating?: boolean; // 是否正在生成中
+  hideToggleButton?: boolean; // 是否隐藏折叠展开按钮（用于Tab布局）
 }
 
-export function ReasoningPanel({ message, isGenerating = false }: ReasoningPanelProps) {
+export function ReasoningPanel({ message, isGenerating = false, hideToggleButton = false }: ReasoningPanelProps) {
   // 自动展开逻辑：正在生成中时展开，否则使用手动状态
   const [manualToggle, setManualToggle] = useState<boolean | null>(null);
-  const showReasoning = manualToggle !== null ? manualToggle : isGenerating;
+  // 如果隐藏了切换按钮（Tab布局），则始终展开；否则使用原有逻辑
+  const showReasoning = hideToggleButton ? true : (manualToggle !== null ? manualToggle : isGenerating);
+
+  // 当isGenerating状态变化时，重置用户的手动选择，让面板自动响应
+  useEffect(() => {
+    setManualToggle(null);
+  }, [isGenerating]);
 
   // 如果没有步骤数据，不显示
   if (!message.steps || message.steps.length === 0) {
@@ -24,18 +31,20 @@ export function ReasoningPanel({ message, isGenerating = false }: ReasoningPanel
 
   return (
     <div className="mb-3">
-      {/* 折叠按钮 */}
-      <button
-        onClick={() => setManualToggle(!showReasoning)}
-        className="flex items-center gap-1.5 text-lg text-muted-foreground hover:text-foreground transition-colors py-1"
-      >
-        {showReasoning ? (
-          <ChevronUpIcon className="w-4 h-4" />
-        ) : (
-          <ChevronDownIcon className="w-4 h-4" />
-        )}
-        <span className="font-medium">推理过程</span>
-      </button>
+      {/* 折叠按钮（Tab布局中隐藏） */}
+      {!hideToggleButton && (
+        <button
+          onClick={() => setManualToggle(!showReasoning)}
+          className="flex items-center gap-1.5 text-lg text-muted-foreground hover:text-foreground transition-colors py-1"
+        >
+          {showReasoning ? (
+            <ChevronUpIcon className="w-4 h-4" />
+          ) : (
+            <ChevronDownIcon className="w-4 h-4" />
+          )}
+          <span className="font-medium">推理过程</span>
+        </button>
+      )}
 
       {/* Reasoning content - Sequential fade-in animation */}
       <AnimatePresence initial={false}>
