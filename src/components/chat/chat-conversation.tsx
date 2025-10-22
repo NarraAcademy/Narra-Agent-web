@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import { useRouter, useParams } from "next/navigation";
 import { motion } from "framer-motion";
-import { useChatContext, WorkflowStep, ReasoningStep, getPathPrefix } from "./chat-context";
+import { useChat } from "ai/react";
+import { useChatContext, getPathPrefix } from "./chat-context";
 import { ChatMessage } from "./chat-message";
 import { ChatInput } from "./chat-input";
 import { Button } from "@/components/ui/button";
@@ -19,26 +20,41 @@ export function ChatConversation() {
   const locale = useLocale();
   const {
     currentMessages,
-    addMessage,
-    updateMessage,
-    updateMessageSteps,
-    updateMessageMetadata,
-    isLoading,
-    setIsLoading,
     conversations,
     currentConversationId,
     createNewConversation,
-    generatingMessageId,
-    setGeneratingMessageId
+    syncConversationFromUseChat,
+    addMessage,
   } = useChatContext();
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [inputValue, setInputValue] = useState(""); // 控制输入框的值
-  const [statusMessage, setStatusMessage] = useState<string>(""); // 状态消息
-  const [currentSteps, setCurrentSteps] = useState<Map<string, WorkflowStep>>(new Map()); // 当前工作流步骤
+  const hasAutoSentRef = useRef<Set<string>>(new Set()); // 记录已自动发送的对话ID
+  const prevConversationIdRef = useRef<string | null>(null); // 跟踪上一次的conversationId
 
-  // 用于记录已处理的用户消息，避免重复触发 AI 响应
-  const processedUserMessageRef = useRef<Set<string>>(new Set());
+  // 使用 useChat hook 管理聊天状态
+  const {
+    messages,
+    input,
+    handleInputChange,
+    handleSubmit,
+    isLoading,
+    data,
+    setMessages,
+    append,
+  } = useChat({
+    api: "/api/chat",
+    id: (params?.id as string) || undefined, // 多对话支持
+    body: {
+      useDeepThinking: true, // 默认启用深度思考
+    },
+    onFinish: (message) => {
+      console.log("[ChatConversation] AI响应完成:", message);
+      // 注意: 实际的 steps 保存逻辑在 useEffect 中处理(监听 isLoading 变化)
+      // 这里不需要做任何事情,因为 onFinish 时 data 可能还没更新
+    },
+    onError: (error) => {
+      console.error("[ChatConversation] useChat错误:", error);
+    },
+  });
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -46,224 +62,177 @@ export function ChatConversation() {
 
   useEffect(() => {
     scrollToBottom();
-  }, [currentMessages]);
+  }, [messages]);
+
+  // 调试日志：监控messages数组变化
+  const prevMessagesRef = useRef<typeof messages>([]);
+  useEffect(() => {
+    if (messages.length > 0) {
+      const lastMessage = messages[messages.length - 1];
+      const prevLastMessage = prevMessagesRef.current[prevMessagesRef.current.length - 1];
+
+      if (lastMessage?.role === "assistant") {
+        const contentChanged = lastMessage.content !== prevLastMessage?.content;
+        if (contentChanged) {
+          console.log(`[ChatConversation] 📝 Messages数组更新 - assistant消息内容变化`, {
+            totalMessages: messages.length,
+            lastMessageId: lastMessage.id,
+            contentLength: lastMessage.content.length,
+            isLoading: isLoading
+          });
+        }
+      }
+    }
+
+    prevMessagesRef.current = messages;
+  }, [messages, isLoading]);
+
+  // 监听 messages 变化,当AI消息完成时保存 steps 到 localStorage
+  const prevMessagesLengthRef = useRef(messages.length);
+  const hasProcessedMessageRef = useRef<Set<string>>(new Set());
+
+  useEffect(() => {
+    console.log("[ChatConversation] 💾 Save steps useEffect triggered", {
+      messagesLength: messages.length,
+      prevLength: prevMessagesLengthRef.current,
+      isLoading,
+      dataLength: Array.isArray(data) ? data.length : 0,
+      hasNewMessage: messages.length > prevMessagesLengthRef.current
+    });
+
+    // 检测到新消息且不在loading状态
+    if (messages.length > prevMessagesLengthRef.current && !isLoading) {
+      const lastMessage = messages[messages.length - 1];
+
+      console.log("[ChatConversation] ✅ Condition met - new message when not loading", {
+        messageId: lastMessage.id,
+        role: lastMessage.role,
+        alreadyProcessed: hasProcessedMessageRef.current.has(lastMessage.id)
+      });
+
+      // 只处理assistant消息,且没有处理过
+      if (lastMessage.role === "assistant" && !hasProcessedMessageRef.current.has(lastMessage.id)) {
+        console.log("[ChatConversation] 检测到新的AI消息,准备保存 steps");
+
+        // 标记为已处理
+        hasProcessedMessageRef.current.add(lastMessage.id);
+
+        // 提取最新的 steps 和 metadata
+        const latestData = Array.isArray(data) && data.length > 0 ? data[data.length - 1] : null;
+        const finalSteps = (latestData as any)?.steps || [];
+        const finalMetadata = (latestData as any)?.metadata || null;
+
+        console.log("[ChatConversation] 最终提取的 steps 数量:", finalSteps.length);
+        console.log("[ChatConversation] 最终提取的 metadata:", finalMetadata);
+
+        // 如果有 steps 或 metadata,保存到 localStorage
+        if (params?.id && (finalSteps.length > 0 || finalMetadata)) {
+          console.log("[ChatConversation] 同步最终数据到 localStorage");
+
+          // 创建带有完整 data 的消息对象
+          const messageWithData = {
+            ...lastMessage,
+            data: {
+              steps: finalSteps,
+              metadata: finalMetadata,
+            }
+          };
+
+          syncConversationFromUseChat(
+            params.id as string,
+            [...messages.slice(0, -1), messageWithData],
+            data
+          );
+        }
+
+        // ✅ 只有在成功处理assistant消息后才更新ref
+        prevMessagesLengthRef.current = messages.length;
+        console.log("[ChatConversation] ✅ Updated prevMessagesLengthRef after processing assistant message");
+      } else if (lastMessage.role === "user") {
+        // 如果是用户消息，也更新ref，避免重复检查
+        prevMessagesLengthRef.current = messages.length;
+        console.log("[ChatConversation] ℹ️ Updated prevMessagesLengthRef after user message");
+      }
+    }
+  }, [messages, isLoading, data, params?.id, syncConversationFromUseChat]);
+
+  // 当切换对话时,同步localStorage消息到useChat
+  useEffect(() => {
+    const conversationId = params?.id as string;
+
+    // 检查conversationId是否变化（排除初始加载的情况，prevConversationIdRef为null时必须执行同步）
+    if (prevConversationIdRef.current === conversationId && prevConversationIdRef.current !== null) {
+      console.log("[ChatConversation] conversationId未变化,跳过同步");
+      return;
+    }
+
+    if (conversationId) {
+      // 如果currentMessages为空,说明对话数据还没有加载,等待下次currentMessages更新后再次触发
+      // 注意:不要在这里更新ref,否则下次currentMessages更新时会被跳过
+      if (currentMessages.length === 0) {
+        console.log("[ChatConversation] conversationId存在但currentMessages为空,等待数据加载");
+        return;
+      }
+
+      console.log("[ChatConversation] conversationId变化,同步localStorage到useChat:", currentMessages.length, "条消息");
+
+      // 检查是否需要自动发送（新对话且只有1条用户消息）
+      const hasOnlyOneUserMessage = currentMessages.length === 1 && currentMessages[0].role === "user";
+      const notSentYet = !hasAutoSentRef.current.has(conversationId);
+
+      console.log("[ChatConversation] 自动发送检查:", {
+        hasOnlyOneUserMessage,
+        notSentYet,
+        conversationId,
+        isLoading
+      });
+
+      if (hasOnlyOneUserMessage && notSentYet) {
+        console.log("[ChatConversation] 满足条件，准备自动发送消息");
+
+        // 标记为已发送
+        hasAutoSentRef.current.add(conversationId);
+
+        const messageToSend = currentMessages[0].content;
+
+        // 直接append发送,不需要先setMessages
+        console.log("[ChatConversation] 调用append发送:", messageToSend.slice(0, 30));
+        append({
+          role: "user",
+          content: messageToSend,
+        });
+      } else {
+        // 非新对话,同步localStorage消息到useChat
+        console.log("[ChatConversation] 同步localStorage到useChat (切换对话)");
+        const useChatMessages = currentMessages.map((msg) => ({
+          id: msg.id,
+          role: msg.role as "user" | "assistant",
+          content: msg.content,
+          createdAt: new Date(msg.timestamp),
+          data: {
+            steps: msg.steps,
+            metadata: msg.metadata,
+          },
+        }));
+        setMessages(useChatMessages as any);
+      }
+
+      // 成功同步后更新ref
+      prevConversationIdRef.current = conversationId;
+    } else {
+      // 在 /chat 页面,清空消息
+      console.log("[ChatConversation] 清空消息 (回到/chat页面)");
+      setMessages([]);
+
+      // 更新ref
+      prevConversationIdRef.current = null;
+    }
+  }, [params?.id, currentConversationId, currentMessages, setMessages, append, isLoading]);
 
   const currentConversation = conversations.find(c => c.id === currentConversationId);
 
-  // 提取的 AI 响应请求函数
-  const fetchAIResponse = async (
-    userMessage: string,
-    targetConversationId: string,
-    useDeepThinking: boolean
-  ) => {
-    setError(null);
-    setIsLoading(true);
-    setStatusMessage("");
-    setCurrentSteps(new Map());
-
-    let assistantMessageId: string | null = null;
-    let accumulatedContent = "";
-    let buffer = "";
-
-    try {
-      console.log("[ChatConversation] 发起API请求");
-      const response = await fetch("/api/chat", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          message: userMessage,
-          useDeepThinking,
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to get response");
-      }
-
-      const reader = response.body?.getReader();
-      const decoder = new TextDecoder();
-
-      if (!reader) {
-        throw new Error("No response body");
-      }
-
-      // 创建AI消息
-      assistantMessageId = addMessage({ role: "assistant", content: "" }, targetConversationId);
-      setGeneratingMessageId(assistantMessageId);
-
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) {
-          console.log("[ChatConversation] SSE流读取完成");
-          break;
-        }
-
-        const chunk = decoder.decode(value, { stream: true });
-        console.log("[ChatConversation] 接收到chunk:", chunk.slice(0, 100));
-        buffer += chunk;
-
-        const lines = buffer.split("\n");
-        buffer = lines.pop() || "";
-
-        for (const line of lines) {
-          if (line.startsWith("data: ")) {
-            const data = line.slice(6).trim();
-            console.log("[ChatConversation] 解析SSE数据:", data.slice(0, 100));
-
-            if (data === "[DONE]") continue;
-
-            try {
-              const parsed = JSON.parse(data);
-              console.log("[ChatConversation] SSE事件类型:", parsed.event);
-
-              switch (parsed.event) {
-                case "start":
-                  setStatusMessage(parsed.message || "开始处理...");
-                  break;
-
-                case "step":
-                  if (parsed.data) {
-                    const newStep: WorkflowStep = {
-                      id: parsed.data.step_id || `step-${Date.now()}`,
-                      title: parsed.data.title || "处理步骤",
-                      agent: parsed.data.agent,
-                      status: "running",
-                      reasoning: [],
-                      timestamp: parsed.data.timestamp,
-                    };
-                    setCurrentSteps((prev) => {
-                      const updated = new Map(prev);
-                      updated.set(newStep.id, newStep);
-                      return updated;
-                    });
-                  }
-                  break;
-
-                case "reasoning":
-                  if (parsed.data) {
-                    console.log("[ChatConversation] 收到reasoning数据:", parsed.data);
-                    const reasoningItem: ReasoningStep = {
-                      id: `reasoning-${Date.now()}-${Math.random()}`,
-                      content: parsed.data.content || "",
-                      agent: parsed.data.agent || "System",
-                      category: parsed.data.category || "info",
-                      metadata: parsed.data.metadata,
-                      step_id: parsed.data.step_id,
-                      timestamp: parsed.data.timestamp,
-                    };
-
-                    const stepId = reasoningItem.step_id || "default-step";
-
-                    setCurrentSteps((prev) => {
-                      const updated = new Map(prev);
-                      let targetStep = updated.get(stepId);
-
-                      if (!targetStep) {
-                        targetStep = {
-                          id: stepId,
-                          title: stepId === "default-step" ? "其他推理" : `步骤 ${stepId}`,
-                          status: "running",
-                          reasoning: [],
-                        };
-                        updated.set(stepId, targetStep);
-                      }
-
-                      targetStep.reasoning.push(reasoningItem);
-                      updated.set(stepId, { ...targetStep });
-
-                      return updated;
-                    });
-                  }
-                  break;
-
-                case "status":
-                  if (parsed.data && parsed.data.message) {
-                    setStatusMessage(parsed.data.message);
-                  }
-                  break;
-
-                case "result":
-                  if (parsed.data && parsed.data.content) {
-                    accumulatedContent += parsed.data.content;
-                    updateMessage(assistantMessageId, accumulatedContent, targetConversationId);
-                  }
-                  break;
-
-                case "complete":
-                  setStatusMessage("完成");
-
-                  // 使用final_report或累积内容
-                  const finalContent = parsed.data?.final_report || accumulatedContent;
-                  if (finalContent && assistantMessageId) {
-                    updateMessage(assistantMessageId, finalContent, targetConversationId);
-                  }
-
-                  if (parsed.data) {
-                    updateMessageMetadata(assistantMessageId, {
-                      tools_used: parsed.data.tools_used,
-                      agents_used: parsed.data.agents_used,
-                    }, targetConversationId);
-                  }
-                  break;
-
-                case "error":
-                  setError(parsed.error || "未知错误");
-                  break;
-
-                case "done":
-                  console.log("SSE stream ended");
-                  break;
-
-                default:
-                  console.warn("Unknown event type:", parsed.event);
-              }
-            } catch (e) {
-              console.warn("Failed to parse SSE data:", data, e);
-            }
-          }
-        }
-      }
-
-      if (!accumulatedContent) {
-        updateMessage(assistantMessageId, t("error_no_response"), targetConversationId);
-      }
-    } catch (err) {
-      console.error("[ChatConversation] API错误:", err);
-      setError(t("error_send_failed"));
-      addMessage({
-        role: "assistant",
-        content: t("error_generic"),
-      }, targetConversationId);
-    } finally {
-      // 确保显示完整内容
-      if (accumulatedContent && assistantMessageId) {
-        updateMessage(assistantMessageId, accumulatedContent, targetConversationId);
-      }
-
-      // 保存工作流步骤
-      setCurrentSteps((prevSteps) => {
-        const finalSteps = Array.from(prevSteps.values());
-        if (finalSteps.length > 0 && assistantMessageId) {
-          const messageId = assistantMessageId; // 捕获值以解决TypeScript类型问题
-          setTimeout(() => {
-            updateMessageSteps(messageId, finalSteps, targetConversationId);
-          }, 0);
-        }
-        return new Map();
-      });
-
-      setIsLoading(false);
-      setGeneratingMessageId(null);
-      setStatusMessage("");
-    }
-  };
-
-  const handleSend = async (message: string, useDeepThinking: boolean) => {
+  const handleSend = async (message: string, _useDeepThinking: boolean) => {
     console.log("[ChatConversation] 开始发送消息:", message.slice(0, 50));
-
-    setInputValue(""); // 清空输入框
 
     // 场景1：在 /chat 页面发送消息（新建对话）
     if (!params?.id) {
@@ -271,63 +240,42 @@ export function ChatConversation() {
       const newConversationId = createNewConversation();
       console.log("[ChatConversation] 创建新对话:", newConversationId);
 
-      // 添加用户消息
+      // 添加用户消息到localStorage
       addMessage({ role: "user", content: message }, newConversationId);
-      console.log("[ChatConversation] 已添加用户消息到对话:", newConversationId);
+      console.log("[ChatConversation] 已添加用户消息到localStorage");
 
-      // 立即跳转到新对话页面（不等待API）
+      // 立即跳转到新对话页面（useEffect会自动检测并发送）
       const pathPrefix = getPathPrefix(locale);
       const targetUrl = `${pathPrefix}/chat/${newConversationId}`;
       console.log("[ChatConversation] 立即跳转:", targetUrl);
       router.push(targetUrl);
 
-      // useEffect 会自动检测并发起 AI 请求
       return;
     }
 
     // 场景2：在 /chat/xxx 页面发送消息（现有对话）
     console.log("[ChatConversation] 使用现有对话:", params.id);
 
-    // 添加用户消息
-    addMessage({ role: "user", content: message }, params.id as string);
-    console.log("[ChatConversation] 已添加用户消息到对话:", params.id);
-
-    // 立即发起 AI 请求
-    await fetchAIResponse(message, params.id as string, useDeepThinking);
+    // 使用useChat的append发送消息
+    append({
+      role: "user",
+      content: message,
+    });
   };
 
-  // 自动触发 AI 响应的 useEffect
-  // 当检测到对话中有未回复的用户消息时，自动发起 AI 请求
-  useEffect(() => {
-    // 只在对话页面才自动触发
-    if (!params?.id) return;
-
-    // 检查是否有消息
-    if (currentMessages.length === 0) return;
-
-    // 检查最后一条消息
-    const lastMessage = currentMessages[currentMessages.length - 1];
-
-    // 只有当最后一条是用户消息时才触发
-    if (lastMessage.role !== 'user') return;
-
-    // 如果正在加载或生成中，不触发
-    if (isLoading || generatingMessageId) return;
-
-    // 如果这条消息已经处理过，不触发
-    if (processedUserMessageRef.current.has(lastMessage.id)) return;
-
-    // 标记为已处理
-    processedUserMessageRef.current.add(lastMessage.id);
-
-    console.log("[ChatConversation] 自动触发 AI 响应，消息ID:", lastMessage.id);
-
-    // 发起 AI 请求（默认不使用深度思考）
-    fetchAIResponse(lastMessage.content, params.id as string, false);
-  }, [params?.id, currentMessages, isLoading, generatingMessageId]);
-
   // 判断是否为空对话
-  const isEmpty = currentMessages.length === 0;
+  const isEmpty = messages.length === 0;
+
+  // 提取当前steps (从data annotations)
+  // data是AI SDK返回的data数组,最新的annotation在最后一个
+  const latestData = Array.isArray(data) && data.length > 0 ? data[data.length - 1] : null;
+  const currentSteps = (latestData as any)?.steps || [];
+  const generatingMessageId = messages[messages.length - 1]?.id;
+
+  // 调试日志
+  if (isLoading && currentSteps.length > 0) {
+    console.log("[ChatConversation] 实时推理步骤:", currentSteps.length, "steps");
+  }
 
   return (
     <div className="flex flex-col h-full bg-background relative">
@@ -355,8 +303,8 @@ export function ChatConversation() {
                 onSend={handleSend}
                 disabled={isLoading}
                 variant="centered"
-                value={inputValue}
-                onChange={setInputValue}
+                value={input}
+                onChange={(value) => handleInputChange({ target: { value } } as any)}
               />
             </motion.div>
 
@@ -398,7 +346,11 @@ export function ChatConversation() {
                       <Button
                         variant="outline"
                         className="w-full text-left justify-start h-auto py-4 px-5 text-base transition-all hover:scale-[1.02]"
-                        onClick={() => !isLoading && setInputValue(prompt)}
+                        onClick={() => {
+                          if (!isLoading) {
+                            handleInputChange({ target: { value: prompt } } as any);
+                          }
+                        }}
                       >
                         {prompt}
                       </Button>
@@ -437,7 +389,11 @@ export function ChatConversation() {
                       <Button
                         variant="outline"
                         className="w-full text-left justify-between h-auto py-4 px-5 text-base transition-all hover:scale-[1.02] flex items-center gap-3"
-                        onClick={() => !isLoading && setInputValue(news.title)}
+                        onClick={() => {
+                          if (!isLoading) {
+                            handleInputChange({ target: { value: news.title } } as any);
+                          }
+                        }}
                       >
                         <span className="flex-1">{news.title}</span>
                         <span className="text-xs text-muted-foreground font-mono bg-muted px-2 py-1 rounded shrink-0">
@@ -463,12 +419,26 @@ export function ChatConversation() {
 
           {/* 消息列表 */}
           <div className="flex-1 overflow-y-auto pb-32">
-            {currentMessages.map((msg) => (
-              <ChatMessage key={msg.id} message={msg} />
-            ))}
+            {messages.map((msg, index) => {
+              // 将useChat的Message转换为ChatMessage组件的格式
+              const messageData = {
+                id: msg.id,
+                role: msg.role as "user" | "assistant",
+                content: msg.content,
+                steps: (msg as any).data?.steps,
+                metadata: (msg as any).data?.metadata,
+                timestamp: msg.createdAt?.getTime() || Date.now(),
+              };
 
-            {/* 正在生成的消息 - 单独渲染实时推理面板 */}
-            {isLoading && generatingMessageId && currentSteps.size > 0 && (
+              // 判断是否正在生成：最后一条assistant消息 + isLoading=true
+              const isLastMessage = index === messages.length - 1;
+              const isGenerating = isLoading && isLastMessage && msg.role === "assistant";
+
+              return <ChatMessage key={msg.id} message={messageData as any} isGenerating={isGenerating} />;
+            })}
+
+            {/* 正在生成的消息 - 显示实时推理面板 */}
+            {isLoading && generatingMessageId && currentSteps.length > 0 && (
               <div className="py-6 px-4 md:px-6 bg-muted/30">
                 <div className="w-full">
                   <ReasoningPanel
@@ -476,7 +446,7 @@ export function ChatConversation() {
                       id: generatingMessageId,
                       role: "assistant",
                       content: "",
-                      steps: Array.from(currentSteps.values()),
+                      steps: currentSteps,
                       timestamp: Date.now()
                     } as any}
                     isGenerating={true}
@@ -485,6 +455,7 @@ export function ChatConversation() {
               </div>
             )}
 
+            {/* Loading indicator */}
             {isLoading && (
               <div className="flex gap-3 py-4 px-4 bg-muted/30">
                 <div className="w-8 h-8 shrink-0 rounded-full bg-muted flex items-center justify-center">

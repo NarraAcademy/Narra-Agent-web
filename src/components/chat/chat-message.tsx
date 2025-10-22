@@ -4,60 +4,21 @@ import { Message } from "./chat-context";
 import { UserAvatar } from "@/components/ui/user-avatar";
 import { useAppContext } from "@/contexts/app";
 import { cn } from "@/lib/utils";
-import ReactMarkdown from "react-markdown";
+import { Streamdown } from "streamdown";
 import remarkGfm from "remark-gfm";
 import rehypeRaw from "rehype-raw";
 import rehypeSanitize from "rehype-sanitize";
-import { useChatContext } from "./chat-context";
 import { ReasoningPanel } from "./reasoning-panel";
-import { useEffect, useState } from "react";
+import { TypeWriterMarkdown } from "./typewriter-markdown";
 
 interface ChatMessageProps {
   message: Message;
+  isGenerating?: boolean; // 是否正在生成中
 }
 
-export function ChatMessage({ message }: ChatMessageProps) {
+export function ChatMessage({ message, isGenerating = false }: ChatMessageProps) {
   const { user } = useAppContext();
-  const { isLoading, generatingMessageId } = useChatContext();
   const isUser = message.role === "user";
-  const isGenerating = isLoading && message.id === generatingMessageId;
-
-  // 打字效果状态
-  const [displayContent, setDisplayContent] = useState(message.content);
-
-  // 监听 message 变化并打印日志
-  useEffect(() => {
-    console.log("[ChatMessage] 组件渲染/更新:", {
-      messageId: message.id,
-      role: message.role,
-      contentLength: message.content.length,
-      contentPreview: message.content.slice(0, 100),
-      isGenerating
-    });
-  }, [message.content, message.id, message.role, isGenerating]);
-
-  // 打字效果逻辑
-  useEffect(() => {
-    // 如果不是正在生成，直接显示全部内容
-    if (!isGenerating) {
-      setDisplayContent(message.content);
-      return;
-    }
-
-    // 从当前显示长度开始继续打字
-    let index = displayContent.length;
-    const timer = setInterval(() => {
-      if (index >= message.content.length) {
-        clearInterval(timer);
-        return;
-      }
-      // 每次显示8个字符，每50ms更新一次
-      index = Math.min(index + 8, message.content.length);
-      setDisplayContent(message.content.slice(0, index));
-    }, 50);
-
-    return () => clearInterval(timer);
-  }, [message.content, isGenerating, displayContent.length]);
 
   return (
     <div
@@ -82,59 +43,65 @@ export function ChatMessage({ message }: ChatMessageProps) {
         </span>
 
         {/* 新版推理面板(使用ReasoningPanel组件) */}
-        {!isUser && <ReasoningPanel message={message} isGenerating={isGenerating} />}
+        {!isUser && <ReasoningPanel message={message} isGenerating={false} />}
 
-        <div
-          className={cn(
-            "prose prose-slate dark:prose-invert max-w-none",
-            // 标题样式
-            "prose-headings:scroll-mt-20 prose-headings:font-bold prose-headings:tracking-tight",
-            "prose-h1:text-3xl prose-h1:mb-6 prose-h1:mt-8",
-            "prose-h2:text-2xl prose-h2:mb-4 prose-h2:mt-6 prose-h2:border-b prose-h2:border-border prose-h2:pb-2",
-            "prose-h3:text-xl prose-h3:mb-3 prose-h3:mt-4",
-            // 段落和文本
-            "prose-p:leading-relaxed prose-p:my-3 prose-p:text-foreground/90",
-            // 移除第一个元素的上边距，确保与头像对齐
-            "[&>:first-child]:mt-0",
-            "prose-strong:text-foreground prose-strong:font-semibold",
-            "prose-em:text-foreground/80",
-            // 链接
-            "prose-a:text-primary prose-a:no-underline prose-a:font-medium",
-            "hover:prose-a:underline hover:prose-a:decoration-2 hover:prose-a:underline-offset-4",
-            // 列表
-            "prose-ul:my-4 prose-ul:leading-relaxed",
-            "prose-ol:my-4 prose-ol:leading-relaxed",
-            "prose-li:my-1 prose-li:marker:text-primary",
-            // 代码
-            "prose-code:text-primary prose-code:bg-muted prose-code:px-1.5 prose-code:py-0.5",
-            "prose-code:rounded-md prose-code:font-mono prose-code:text-sm",
-            "prose-code:before:content-none prose-code:after:content-none",
-            // 代码块
-            "prose-pre:bg-muted prose-pre:border prose-pre:border-border prose-pre:rounded-lg",
-            "prose-pre:p-4 prose-pre:overflow-x-auto prose-pre:my-4",
-            // 表格
-            "prose-table:border-collapse prose-table:border prose-table:border-border prose-table:my-6",
-            "prose-table:w-full prose-table:rounded-lg prose-table:overflow-hidden",
-            "prose-thead:bg-muted/50",
-            "prose-th:border prose-th:border-border prose-th:px-4 prose-th:py-3",
-            "prose-th:text-left prose-th:font-semibold prose-th:text-foreground",
-            "prose-td:border prose-td:border-border prose-td:px-4 prose-td:py-3",
-            "prose-tr:border-b prose-tr:border-border",
-            "prose-tr:transition-colors hover:prose-tr:bg-muted/30",
-            // 引用
-            "prose-blockquote:border-l-4 prose-blockquote:border-l-primary",
-            "prose-blockquote:bg-muted/50 prose-blockquote:py-2 prose-blockquote:px-4",
-            "prose-blockquote:my-4 prose-blockquote:rounded-r-lg",
-            "prose-blockquote:not-italic prose-blockquote:text-foreground/80",
-            // 水平线
-            "prose-hr:border-border prose-hr:my-8",
-            // 图片
-            "prose-img:rounded-lg prose-img:shadow-md"
-          )}
-        >
-          <ReactMarkdown
-            remarkPlugins={[remarkGfm]}
-            rehypePlugins={[rehypeRaw, rehypeSanitize]}
+        {/* 对于assistant消息，使用打字效果；对于user消息，直接显示 */}
+        {isUser ? (
+          <div className="prose prose-slate dark:prose-invert max-w-none [&>:first-child]:mt-0">
+            <Streamdown>
+              {message.content}
+            </Streamdown>
+          </div>
+        ) : (
+          <TypeWriterMarkdown
+            content={message.content}
+            isGenerating={isGenerating}
+            speed={15}
+            className={cn(
+              // 标题样式
+              "prose-headings:scroll-mt-20 prose-headings:font-bold prose-headings:tracking-tight",
+              "prose-h1:text-3xl prose-h1:mb-6 prose-h1:mt-8",
+              "prose-h2:text-2xl prose-h2:mb-4 prose-h2:mt-6 prose-h2:border-b prose-h2:border-border prose-h2:pb-2",
+              "prose-h3:text-xl prose-h3:mb-3 prose-h3:mt-4",
+              // 段落和文本
+              "prose-p:leading-relaxed prose-p:my-3 prose-p:text-foreground/90",
+              // 移除第一个元素的上边距，确保与头像对齐
+              "[&>:first-child]:mt-0",
+              "prose-strong:text-foreground prose-strong:font-semibold",
+              "prose-em:text-foreground/80",
+              // 链接
+              "prose-a:text-primary prose-a:no-underline prose-a:font-medium",
+              "hover:prose-a:underline hover:prose-a:decoration-2 hover:prose-a:underline-offset-4",
+              // 列表
+              "prose-ul:my-4 prose-ul:leading-relaxed",
+              "prose-ol:my-4 prose-ol:leading-relaxed",
+              "prose-li:my-1 prose-li:marker:text-primary",
+              // 代码
+              "prose-code:text-primary prose-code:bg-muted prose-code:px-1.5 prose-code:py-0.5",
+              "prose-code:rounded-md prose-code:font-mono prose-code:text-sm",
+              "prose-code:before:content-none prose-code:after:content-none",
+              // 代码块
+              "prose-pre:bg-muted prose-pre:border prose-pre:border-border prose-pre:rounded-lg",
+              "prose-pre:p-4 prose-pre:overflow-x-auto prose-pre:my-4",
+              // 表格
+              "prose-table:border-collapse prose-table:border prose-table:border-border prose-table:my-6",
+              "prose-table:w-full prose-table:rounded-lg prose-table:overflow-hidden",
+              "prose-thead:bg-muted/50",
+              "prose-th:border prose-th:border-border prose-th:px-4 prose-th:py-3",
+              "prose-th:text-left prose-th:font-semibold prose-th:text-foreground",
+              "prose-td:border prose-td:border-border prose-td:px-4 prose-td:py-3",
+              "prose-tr:border-b prose-tr:border-border",
+              "prose-tr:transition-colors hover:prose-tr:bg-muted/30",
+              // 引用
+              "prose-blockquote:border-l-4 prose-blockquote:border-l-primary",
+              "prose-blockquote:bg-muted/50 prose-blockquote:py-2 prose-blockquote:px-4",
+              "prose-blockquote:my-4 prose-blockquote:rounded-r-lg",
+              "prose-blockquote:not-italic prose-blockquote:text-foreground/80",
+              // 水平线
+              "prose-hr:border-border prose-hr:my-8",
+              // 图片
+              "prose-img:rounded-lg prose-img:shadow-md"
+            )}
             components={{
               // 响应式表格包装
               table: ({ node, ...props }) => (
@@ -179,10 +146,8 @@ export function ChatMessage({ message }: ChatMessageProps) {
                 return <code {...props} />;
               },
             }}
-          >
-            {displayContent}
-          </ReactMarkdown>
-        </div>
+          />
+        )}
       </div>
     </div>
   );

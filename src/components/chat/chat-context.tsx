@@ -62,6 +62,7 @@ interface ChatContextType {
   updateMessage: (messageId: string, content: string, conversationId?: string) => void; // 可指定对话ID
   updateMessageSteps: (messageId: string, steps: WorkflowStep[], conversationId?: string) => void; // 可指定对话ID
   updateMessageMetadata: (messageId: string, metadata: Message["metadata"], conversationId?: string) => void; // 可指定对话ID
+  syncConversationFromUseChat: (conversationId: string, messages: any[], data?: any) => void; // 同步useChat的消息到localStorage
   currentMessages: Message[];
   isLoading: boolean;
   setIsLoading: (loading: boolean) => void;
@@ -356,6 +357,47 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
     );
   };
 
+  // 同步useChat的消息到localStorage
+  const syncConversationFromUseChat = (conversationId: string, useChatMessages: any[], data?: any) => {
+    console.log("[ChatContext] syncConversationFromUseChat:", {
+      conversationId,
+      messageCount: useChatMessages.length,
+      hasData: !!data
+    });
+
+    if (!conversationId) return;
+
+    // 转换useChat的Message格式为我们的Message格式
+    const convertedMessages: Message[] = useChatMessages.map((msg) => ({
+      id: msg.id || `${Date.now()}-${Math.random()}`,
+      role: msg.role as "user" | "assistant",
+      content: msg.content || "",
+      steps: msg.data?.steps,
+      metadata: msg.data?.metadata,
+      timestamp: msg.createdAt?.getTime() || Date.now(),
+    }));
+
+    setConversations((prev) =>
+      prev.map((c) => {
+        if (c.id === conversationId) {
+          // 自动生成标题（使用第一条用户消息）
+          const firstUserMsg = convertedMessages.find(m => m.role === "user");
+          const title = c.title === "新对话" && firstUserMsg
+            ? firstUserMsg.content.slice(0, 20) + (firstUserMsg.content.length > 20 ? "..." : "")
+            : c.title;
+
+          return {
+            ...c,
+            messages: convertedMessages,
+            title,
+            updatedAt: Date.now(),
+          };
+        }
+        return c;
+      })
+    );
+  };
+
   const currentConversation = conversations.find((c) => c.id === currentConversationId);
   const currentMessages = currentConversation?.messages || [];
 
@@ -379,6 +421,7 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
         updateMessage,
         updateMessageSteps,
         updateMessageMetadata,
+        syncConversationFromUseChat,
         currentMessages,
         isLoading,
         setIsLoading,
