@@ -8,6 +8,7 @@ import { useChat } from "ai/react";
 import { useChatContext, getPathPrefix } from "./chat-context";
 import { ChatMessage } from "./chat-message";
 import { ChatInput } from "./chat-input";
+import { EmptyChatInput } from "./empty-chat-input";
 import { Button } from "@/components/ui/button";
 import { ReloadIcon } from "@radix-ui/react-icons";
 import { ReasoningPanel } from "./reasoning-panel";
@@ -291,15 +292,28 @@ export function ChatConversation() {
       {isEmpty ? (
         /* 新对话状态: 居中布局 */
         <div className="flex-1 flex items-center justify-center p-8">
-          <div className="w-full max-w-2xl space-y-8">
+          <div className="w-full max-w-2xl space-y-4 mt-[60px]">
             {/* 标题区域 */}
-            <div className="text-center space-y-3">
-              <h1 className="text-4xl font-bold">
-                {t("title_placeholder")}
-              </h1>
-              <p className="text-muted-foreground text-lg">
-                {t("subtitle")}
-              </p>
+            <div className="relative text-center space-y-0 py-0 rounded-lg">
+              {/* 背景图 */}
+              <img
+                src="/imgs/common/character.png"
+                alt=""
+                className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-[250px] w-[350px] opacity-80 pointer-events-none"
+              />
+
+              {/* 渐变背景 */}
+              <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-primary/5 pointer-events-none -z-10" />
+
+              {/* 内容 */}
+              <div className="relative z-10">
+                <h1 className="text-4xl font-bold">
+                  {t("title_placeholder")}
+                </h1>
+                <p className="text-muted-foreground text-lg">
+                  {t("subtitle")}
+                </p>
+              </div>
             </div>
 
             {/* 居中的输入框 */}
@@ -307,11 +321,11 @@ export function ChatConversation() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.3, ease: "easeOut" }}
+              className="w-full max-w-[960px] mx-auto"
             >
-              <ChatInput
+              <EmptyChatInput
                 onSend={handleSend}
                 disabled={isLoading}
-                variant="centered"
                 value={input}
                 onChange={(value) => handleInputChange({ target: { value } } as any)}
               />

@@ -210,6 +210,9 @@
       "language_zh": "中文",
       "language_en": "English",
       "logout": "退出登录"
-    }
+    },
+    "input_mode_quick_ask": "Quick Ask",
+    "input_mode_deep_research": "Deep Research",
+    "input_mode_ai_agent": "AI Agent"
   }
 }

@@ -142,7 +142,7 @@
     "delete": "Delete",
     "delete_confirm": "Delete this conversation?",
     "title_placeholder": "What blockchain news are you exploring today?",
-    "subtitle": "I'm your AI cryptocurrency assistant, ready to analyze market data and answer questions",
+    "subtitle": "What's the new blockchain thing you most want to explore today?",
     "input_placeholder": "Ask about crypto, blockchain or DeFi...",
     "send": "Send",
     "thinking": "Thinking...",
@@ -210,6 +210,9 @@
       "language_zh": "中文",
       "language_en": "English",
       "logout": "Sign Out"
-    }
+    },
+    "input_mode_quick_ask": "Quick Ask",
+    "input_mode_deep_research": "Deep Research",
+    "input_mode_ai_agent": "AI Agent"
   }
 }
