@@ -71,7 +71,7 @@ export function ChatInput({ onSend, disabled, variant = "centered", value: exter
   // 浮窗样式：相对于消息区域居中（跟消息同宽）
   if (variant === "floating") {
     return (
-      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 w-full max-w-[calc(100%-4rem)] md:max-w-[800px] z-50 px-4">
+      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] md:max-w-[800px] z-50">
         <div className="bg-background rounded-3xl shadow-lg border border-border p-2">
           {inputContent}
         </div>

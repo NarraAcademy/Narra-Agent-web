@@ -39,7 +39,7 @@ export function EmptyChatInput({ onSend, disabled, value = "", onChange }: Empty
 
   return (
     <div
-      className="relative w-full border border-primary rounded-[24px] px-4 py-2 flex flex-col"
+      className="relative w-full border border-primary rounded-[25px] md:px-4 md:py-3 px-2 py-2 flex flex-col"
       style={{ backdropFilter: "blur(24px)" }}
     >
       {/* 输入区域：文本框 */}
@@ -50,7 +50,7 @@ export function EmptyChatInput({ onSend, disabled, value = "", onChange }: Empty
           onKeyDown={handleKeyDown}
           placeholder={t("input_placeholder")}
           disabled={disabled}
-          className="flex-1 resize-none border-0 !bg-transparent text-muted-foreground placeholder:text-muted-foreground outline-none p-0"
+          className="flex-1 resize-none border-0 !bg-transparent text-sm text-muted-foreground placeholder:text-muted-foreground outline-none p-0"
           rows={3}
         />
       </div>
@@ -58,7 +58,7 @@ export function EmptyChatInput({ onSend, disabled, value = "", onChange }: Empty
       {/* 底部控制栏：按钮组 + 发送按钮 */}
       <div className="flex items-center justify-between">
         {/* 三个模式按钮 - 分段控制器 */}
-        <div className="inline-flex border border-border rounded-lg overflow-hidden bg-muted/10">
+        <div className="inline-flex border border-border rounded-lg overflow-hidden bg-muted/10 ">
           {modes.map((mode, index) => {
             const isDisabled = mode.key === "agent";
             return (
@@ -74,7 +74,7 @@ export function EmptyChatInput({ onSend, disabled, value = "", onChange }: Empty
                   }
                 }}
                 className={cn(
-                  "px-3 py-1 text-sm transition-colors whitespace-nowrap",
+                  "px-2 py-1 text-xs transition-colors whitespace-nowrap",
                   // 添加右边框分隔线，最后一个除外
                   index < modes.length - 1 && "border-r border-border",
                   isDisabled
@@ -91,14 +91,13 @@ export function EmptyChatInput({ onSend, disabled, value = "", onChange }: Empty
           })}
         </div>
 
-        {/* 发送按钮 */}
-        <button
+        {/* 发送图标 */}
+        <div
           onClick={handleSend}
-          disabled={disabled || !value.trim()}
-          className="h-12 w-12 rounded-full bg-primary hover:bg-primary/90 disabled:opacity-50 flex items-center justify-center shrink-0 transition-colors"
+          className="p-2 rounded-full bg-primary hover:bg-primary/90 flex items-center justify-center shrink-0 transition-colors cursor-pointer"
         >
-          <Send className="w-5 h-5" />
-        </button>
+          <Send className="w-4 h-4" />
+        </div>
       </div>
     </div>
   );

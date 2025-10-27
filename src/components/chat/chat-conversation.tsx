@@ -288,7 +288,7 @@ export function ChatConversation() {
   }, [isLoading, currentSteps.length, lastMessage?.content?.length, hasContentStarted]);
 
   return (
-    <div className="flex flex-col h-full bg-background relative">
+    <div className="flex flex-col h-full bg-background relative overflow-hidden">
       {isEmpty ? (
         /* 新对话状态: 居中布局 */
         <div className="flex-1 flex items-center justify-center p-8">
@@ -332,7 +332,7 @@ export function ChatConversation() {
             </motion.div>
 
             {/* 预设问题 - Tabs版本 */}
-            <Tabs defaultValue="hot_topics" className="w-full">
+            <Tabs defaultValue="hot_topics" className="w-full  mx-auto">
               <TabsList className="w-full mb-4 bg-transparent p-0 h-auto border-b border-border">
                 <TabsTrigger
                   value="hot_topics"
@@ -349,7 +349,7 @@ export function ChatConversation() {
               </TabsList>
 
               {/* Tab 1: 热点话题 */}
-              <TabsContent value="hot_topics">
+              <TabsContent className="" value="hot_topics">
                 <div className="grid grid-cols-1 gap-3">
                   {[
                     t("preset_questions.analyze_crypto"),
@@ -366,9 +366,8 @@ export function ChatConversation() {
                         ease: "easeOut"
                       }}
                     >
-                      <Button
-                        variant="outline"
-                        className="w-full text-left justify-start h-auto py-4 px-5 text-base transition-all hover:scale-[1.02]"
+                      <div
+                        className="w-full text-left h-auto py-2 px-3 md:py-4 md:px-5 text-sm transition-all hover:scale-[1.02] border border-border rounded-lg cursor-pointer hover:bg-accent"
                         onClick={() => {
                           if (!isLoading) {
                             handleInputChange({ target: { value: prompt } } as any);
@@ -376,14 +375,14 @@ export function ChatConversation() {
                         }}
                       >
                         {prompt}
-                      </Button>
+                      </div>
                     </motion.div>
                   ))}
                 </div>
               </TabsContent>
 
               {/* Tab 2: 市场快讯 */}
-              <TabsContent value="market_news">
+              <TabsContent className="" value="market_news">
                 <div className="grid grid-cols-1 gap-3">
                   {[
                     {
@@ -409,9 +408,8 @@ export function ChatConversation() {
                         ease: "easeOut"
                       }}
                     >
-                      <Button
-                        variant="outline"
-                        className="w-full text-left justify-between h-auto py-4 px-5 text-base transition-all hover:scale-[1.02] flex items-center gap-3"
+                      <div
+                        className="w-full text-left h-auto py-2 px-3 md:py-4 md:px-5 text-sm transition-all hover:scale-[1.02] border border-border rounded-lg cursor-pointer hover:bg-accent flex items-center gap-3"
                         onClick={() => {
                           if (!isLoading) {
                             handleInputChange({ target: { value: news.title } } as any);
@@ -422,7 +420,7 @@ export function ChatConversation() {
                         <span className="text-xs font-semibold bg-primary text-primary-foreground px-2 py-1 rounded shrink-0">
                           NEW
                         </span>
-                      </Button>
+                      </div>
                     </motion.div>
                   ))}
                 </div>
@@ -441,7 +439,7 @@ export function ChatConversation() {
           </div>
 
           {/* 消息列表 - 使用StickToBottom实现智能滚动 */}
-          <StickToBottom className="flex-1 overflow-hidden" resize="smooth" initial="smooth">
+          <StickToBottom className="flex-1 overflow-y-auto overflow-x-hidden" resize="smooth" initial="smooth">
             <StickToBottom.Content className="flex flex-col gap-4 pb-32">
               {messages.map((msg, index) => {
                 // 从 localStorage (currentMessages) 查找对应的消息,优先使用持久化的 steps 数据
