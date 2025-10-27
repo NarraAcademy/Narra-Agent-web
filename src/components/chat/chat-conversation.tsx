@@ -440,7 +440,7 @@ export function ChatConversation() {
 
           {/* 消息列表 - 使用StickToBottom实现智能滚动 */}
           <StickToBottom className="flex-1 overflow-y-auto overflow-x-hidden" resize="smooth" initial="smooth">
-            <StickToBottom.Content className="flex flex-col gap-4 pb-32">
+            <StickToBottom.Content className="flex flex-col gap-0 pb-32">
               {messages.map((msg, index) => {
                 // 从 localStorage (currentMessages) 查找对应的消息,优先使用持久化的 steps 数据
                 const persistedMessage = currentMessages.find(m => m.id === msg.id);

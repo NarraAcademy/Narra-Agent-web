@@ -94,7 +94,7 @@ export function ChatMessage({ message, isGenerating = false }: ChatMessageProps)
         </span>
 
         {isUser ? (
-          <div className="prose prose-slate dark:prose-invert max-w-none [&>:first-child]:mt-0">
+          <div className="prose prose-slate dark:prose-invert max-w-none [&>:first-child]:mt-0 text-foreground">
             <Streamdown>
               {message.content}
             </Streamdown>
@@ -126,11 +126,13 @@ export function ChatMessage({ message, isGenerating = false }: ChatMessageProps)
                     isGenerating={isGenerating}
                     speed={15}
                     className={cn(
-                      // 标题样式
-                      "prose-headings:scroll-mt-20 prose-headings:font-bold prose-headings:tracking-tight",
-                      "prose-h1:text-3xl prose-h1:mb-6 prose-h1:mt-8",
-                      "prose-h2:text-2xl prose-h2:mb-4 prose-h2:mt-6 prose-h2:border-b prose-h2:border-border prose-h2:pb-2",
-                      "prose-h3:text-xl prose-h3:mb-3 prose-h3:mt-4",
+                      // 统一字体大小为text-sm
+                      "text-sm",
+                      // 标题样式 - 深色模式颜色修复
+                      "prose-headings:scroll-mt-20 prose-headings:font-bold prose-headings:tracking-tight prose-headings:text-foreground",
+                      "prose-h1:text-sm prose-h1:mb-6 prose-h1:mt-8",
+                      "prose-h2:text-sm prose-h2:mb-4 prose-h2:mt-6 prose-h2:border-b prose-h2:border-border prose-h2:pb-2",
+                      "prose-h3:text-sm prose-h3:mb-3 prose-h3:mt-4",
                       // 段落和文本
                       "prose-p:leading-relaxed prose-p:my-3 prose-p:text-foreground/90",
                       // 移除第一个元素的上边距
@@ -143,7 +145,7 @@ export function ChatMessage({ message, isGenerating = false }: ChatMessageProps)
                       // 列表
                       "prose-ul:my-4 prose-ul:leading-relaxed",
                       "prose-ol:my-4 prose-ol:leading-relaxed",
-                      "prose-li:my-1 prose-li:marker:text-primary",
+                      "prose-li:my-1 prose-li:text-foreground prose-li:marker:text-primary",
                       // 代码
                       "prose-code:text-primary prose-code:bg-muted prose-code:px-1.5 prose-code:py-0.5",
                       "prose-code:rounded-md prose-code:font-mono prose-code:text-sm",
@@ -158,6 +160,7 @@ export function ChatMessage({ message, isGenerating = false }: ChatMessageProps)
                       "prose-th:border prose-th:border-border prose-th:px-4 prose-th:py-3",
                       "prose-th:text-left prose-th:font-semibold prose-th:text-foreground",
                       "prose-td:border prose-td:border-border prose-td:px-4 prose-td:py-3",
+                      "prose-td:text-foreground",
                       "prose-tr:border-b prose-tr:border-border",
                       "prose-tr:transition-colors hover:prose-tr:bg-muted/30",
                       // 引用
@@ -250,11 +253,13 @@ export function ChatMessage({ message, isGenerating = false }: ChatMessageProps)
                 isGenerating={isGenerating}
                 speed={15}
                 className={cn(
-                  // 标题样式
-                  "prose-headings:scroll-mt-20 prose-headings:font-bold prose-headings:tracking-tight",
-                  "prose-h1:text-3xl prose-h1:mb-6 prose-h1:mt-8",
-                  "prose-h2:text-2xl prose-h2:mb-4 prose-h2:mt-6 prose-h2:border-b prose-h2:border-border prose-h2:pb-2",
-                  "prose-h3:text-xl prose-h3:mb-3 prose-h3:mt-4",
+                  // 统一字体大小为text-sm
+                  "text-sm",
+                  // 标题样式 - 深色模式颜色修复
+                  "prose-headings:scroll-mt-20 prose-headings:font-bold prose-headings:tracking-tight prose-headings:text-foreground",
+                  "prose-h1:text-sm prose-h1:mb-6 prose-h1:mt-8",
+                  "prose-h2:text-sm prose-h2:mb-4 prose-h2:mt-6 prose-h2:border-b prose-h2:border-border prose-h2:pb-2",
+                  "prose-h3:text-sm prose-h3:mb-3 prose-h3:mt-4",
                   // 段落和文本
                   "prose-p:leading-relaxed prose-p:my-3 prose-p:text-foreground/90",
                   "[&>:first-child]:mt-0",
@@ -266,7 +271,7 @@ export function ChatMessage({ message, isGenerating = false }: ChatMessageProps)
                   // 列表
                   "prose-ul:my-4 prose-ul:leading-relaxed",
                   "prose-ol:my-4 prose-ol:leading-relaxed",
-                  "prose-li:my-1 prose-li:marker:text-primary",
+                  "prose-li:my-1 prose-li:text-foreground prose-li:marker:text-primary",
                   // 代码
                   "prose-code:text-primary prose-code:bg-muted prose-code:px-1.5 prose-code:py-0.5",
                   "prose-code:rounded-md prose-code:font-mono prose-code:text-sm",
@@ -281,6 +286,7 @@ export function ChatMessage({ message, isGenerating = false }: ChatMessageProps)
                   "prose-th:border prose-th:border-border prose-th:px-4 prose-th:py-3",
                   "prose-th:text-left prose-th:font-semibold prose-th:text-foreground",
                   "prose-td:border prose-td:border-border prose-td:px-4 prose-td:py-3",
+                  "prose-td:text-foreground",
                   "prose-tr:border-b prose-tr:border-border",
                   "prose-tr:transition-colors hover:prose-tr:bg-muted/30",
                   // 引用
