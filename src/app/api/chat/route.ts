@@ -20,7 +20,7 @@ export async function POST(req: Request) {
     // 1. AI SDK格式: { messages: [...], data: {...} }
     // 2. 旧格式: { message: "...", useDeepThinking: true }
     let message: string;
-    let useDeepThinking = true;
+    let useDeepThinking = false; // 默认为 quick 模式
 
     if (body.messages && Array.isArray(body.messages)) {
       // AI SDK格式：从messages数组中提取最后一条用户消息
@@ -36,7 +36,8 @@ export async function POST(req: Request) {
       }
 
       message = lastUserMessage.content;
-      useDeepThinking = body.data?.useDeepThinking ?? true;
+      // 尝试从多个位置读取 useDeepThinking，优先级：body.data > lastUserMessage.data > 默认false
+      useDeepThinking = body.data?.useDeepThinking ?? lastUserMessage.data?.useDeepThinking ?? false;
     } else if (body.message) {
       // 旧格式
       message = body.message;

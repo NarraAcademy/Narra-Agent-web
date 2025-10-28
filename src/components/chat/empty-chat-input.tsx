@@ -16,11 +16,16 @@ interface EmptyChatInputProps {
 
 export function EmptyChatInput({ onSend, disabled, value = "", onChange }: EmptyChatInputProps) {
   const t = useTranslations("chat");
-  const [selectedMode, setSelectedMode] = useState<InputMode>("deep");
+  const [selectedMode, setSelectedMode] = useState<InputMode>("quick");
 
   const handleSend = () => {
     if (!value.trim() || disabled) return;
-    const useDeepThinking = selectedMode !== "quick";
+    const useDeepThinking = selectedMode === "deep";
+    console.log('[EmptyChatInput] handleSend 调用', {
+      selectedMode,
+      useDeepThinking,
+      message: value.trim().slice(0, 50)
+    });
     onSend(value.trim(), useDeepThinking);
   };
 
@@ -66,7 +71,12 @@ export function EmptyChatInput({ onSend, disabled, value = "", onChange }: Empty
                 key={mode.key}
                 role="button"
                 tabIndex={isDisabled ? -1 : 0}
-                onClick={() => !isDisabled && setSelectedMode(mode.key)}
+                onClick={() => {
+                  if (!isDisabled) {
+                    console.log('[EmptyChatInput] 模式切换', mode.key);
+                    setSelectedMode(mode.key);
+                  }
+                }}
                 onKeyDown={(e) => {
                   if (!isDisabled && (e.key === "Enter" || e.key === " ")) {
                     e.preventDefault();

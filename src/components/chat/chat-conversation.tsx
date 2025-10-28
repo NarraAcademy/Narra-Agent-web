@@ -47,9 +47,6 @@ export function ChatConversation() {
   } = useChat({
     api: "/api/chat",
     id: (params?.id as string) || undefined, // 多对话支持
-    body: {
-      useDeepThinking: true, // 默认启用深度思考
-    },
     onFinish: (message) => {
       debug.log("AI响应完成", message);
       // 注意: 实际的 steps 保存逻辑在 useEffect 中处理(监听 isLoading 变化)
@@ -194,11 +191,23 @@ export function ChatConversation() {
 
         const messageToSend = currentMessages[0].content;
 
+        // 从localStorage读取useDeepThinking参数
+        const storageKey = `pending_useDeepThinking_${conversationId}`;
+        const storedValue = localStorage.getItem(storageKey);
+        const useDeepThinking = storedValue ? JSON.parse(storedValue) : false;
+        debug.log('自动发送使用 useDeepThinking', { key: storageKey, value: useDeepThinking });
+
+        // 清除localStorage中的临时数据
+        localStorage.removeItem(storageKey);
+
         // 直接append发送,不需要先setMessages
         debug.log('调用append发送', messageToSend.slice(0, 30));
         append({
           role: "user",
           content: messageToSend,
+          data: {
+            useDeepThinking,
+          },
         });
       } else {
         // 非新对话,同步localStorage消息到useChat
@@ -230,14 +239,19 @@ export function ChatConversation() {
 
   const currentConversation = conversations.find(c => c.id === currentConversationId);
 
-  const handleSend = async (message: string, _useDeepThinking: boolean) => {
-    debug.log('开始发送消息', message.slice(0, 50));
+  const handleSend = async (message: string, useDeepThinking: boolean) => {
+    debug.log('开始发送消息', `${message.slice(0, 50)} | useDeepThinking: ${useDeepThinking}`);
 
     // 场景1：在 /chat 页面发送消息（新建对话）
     if (!params?.id) {
       // 创建新对话
       const newConversationId = createNewConversation();
       debug.log('创建新对话', newConversationId);
+
+      // 保存useDeepThinking到localStorage,键名包含conversationId
+      const storageKey = `pending_useDeepThinking_${newConversationId}`;
+      localStorage.setItem(storageKey, JSON.stringify(useDeepThinking));
+      debug.log('保存 useDeepThinking 到 localStorage', { key: storageKey, value: useDeepThinking });
 
       // 添加用户消息到localStorage
       addMessage({ role: "user", content: message }, newConversationId);
@@ -255,10 +269,13 @@ export function ChatConversation() {
     // 场景2：在 /chat/xxx 页面发送消息（现有对话）
     debug.log('使用现有对话', params.id);
 
-    // 使用useChat的append发送消息
+    // 使用useChat的append发送消息,并传递useDeepThinking参数
     append({
       role: "user",
       content: message,
+      data: {
+        useDeepThinking,
+      },
     });
   };
 

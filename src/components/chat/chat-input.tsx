@@ -17,7 +17,7 @@ interface ChatInputProps {
 export function ChatInput({ onSend, disabled, variant = "centered", value: externalValue, onChange: externalOnChange }: ChatInputProps) {
   const t = useTranslations("chat");
   const [internalMessage, setInternalMessage] = useState("");
-  const [useDeepThinking] = useState(true);
+  const [useDeepThinking] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   // 使用受控模式或非受控模式

@@ -74,7 +74,7 @@ export function ChatMessage({ message, isGenerating = false }: ChatMessageProps)
   return (
     <div
       className={cn(
-        "py-6 px-4 md:px-6",
+        "py-4 px-4 md:px-6",
         isUser ? "flex gap-3 bg-background items-center" : "bg-muted/30"
       )}
     >
