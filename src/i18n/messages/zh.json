@@ -213,6 +213,7 @@
     },
     "input_mode_quick_ask": "Quick Ask",
     "input_mode_deep_research": "Deep Research",
-    "input_mode_ai_agent": "AI Agent"
+    "input_mode_ai_agent": "AI Agent",
+    "analytics": "加密数据中心"
   }
 }

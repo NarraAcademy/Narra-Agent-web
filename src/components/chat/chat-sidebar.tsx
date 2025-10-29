@@ -13,14 +13,16 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   PlusIcon,
   MagnifyingGlassIcon,
   ChatBubbleIcon,
   DotsVerticalIcon,
   ChevronLeftIcon,
+  BarChartIcon,
 } from "@radix-ui/react-icons";
-import { LuPanelLeft as PinLeftIcon} from "react-icons/lu";
+import { LuPanelLeft as PinLeftIcon } from "react-icons/lu";
 
 import { useState } from "react";
 import { cn } from "@/lib/utils";
@@ -31,9 +33,14 @@ interface ChatSidebarProps {
   onClose?: () => void;
 }
 
-export function ChatSidebar({ collapsed = false, onToggleCollapse, onClose }: ChatSidebarProps) {
+export function ChatSidebar({
+  collapsed = false,
+  onToggleCollapse,
+  onClose,
+}: ChatSidebarProps) {
   const t = useTranslations("chat");
   const locale = useLocale();
+  const router = useRouter();
   const {
     conversations,
     currentConversationId,
@@ -43,14 +50,9 @@ export function ChatSidebar({ collapsed = false, onToggleCollapse, onClose }: Ch
     renameConversation,
   } = useChatContext();
 
-  const [searchQuery, setSearchQuery] = useState("");
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editTitle, setEditTitle] = useState("");
   const [searchDialogOpen, setSearchDialogOpen] = useState(false);
-
-  const filteredConversations = conversations.filter((c) =>
-    c.title.toLowerCase().includes(searchQuery.toLowerCase())
-  );
 
   const handleRename = (id: string) => {
     const trimmedTitle = editTitle.trim();
@@ -70,7 +72,7 @@ export function ChatSidebar({ collapsed = false, onToggleCollapse, onClose }: Ch
     }
 
     // 只有标题真正改变时才更新
-    const originalTitle = conversations.find(c => c.id === id)?.title;
+    const originalTitle = conversations.find((c) => c.id === id)?.title;
     if (trimmedTitle !== originalTitle) {
       renameConversation(id, trimmedTitle);
     }
@@ -85,14 +87,19 @@ export function ChatSidebar({ collapsed = false, onToggleCollapse, onClose }: Ch
   };
 
   return (
-    <div className={cn(
-      "h-screen bg-background flex flex-col transition-all duration-300",
-      collapsed ? "w-[60px]" : "w-[300px]"
-    )}>
+    <div
+      className={cn(
+        "h-screen bg-background flex flex-col transition-all duration-300",
+        collapsed ? "w-[60px]" : "w-[300px]"
+      )}
+    >
       {/* 顶部标题栏 */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-border">
         {!collapsed && (
-          <Link href="/home" className="text-lg font-semibold hover:text-primary transition-colors">
+          <Link
+            href="/home"
+            className="text-lg font-semibold hover:text-primary transition-colors"
+          >
             Narra Agent
           </Link>
         )}
@@ -109,63 +116,80 @@ export function ChatSidebar({ collapsed = false, onToggleCollapse, onClose }: Ch
         />
       </div>
 
-      {/* 新建对话按钮 */}
-      {!collapsed ? (
-        <div className="p-3">
+      <div className="space-y-2 pb-2 border-b border-gray-800">
+        {/* 新建对话按钮 */}
+        {!collapsed ? (
           <div
             onClick={createConversation}
-            className="w-full flex items-center justify-start gap-2 px-3 py-2 rounded-lg border border-border cursor-pointer hover:bg-accent transition-colors"
+            className="w-full flex items-center justify-start gap-2 px-3 py-2 rounded-lg cursor-pointer hover:bg-accent transition-colors"
           >
             <PlusIcon className="w-5 h-5 shrink-0" />
             <span className="text-sm">{t("new_chat")}</span>
           </div>
-        </div>
-      ) : (
-        <div className="p-3 flex justify-center">
-          <PlusIcon
-            onClick={createConversation}
-            className="w-5 h-5 cursor-pointer shrink-0 hover:text-primary transition-colors"
-            aria-label="New chat"
-            role="button"
-          />
-        </div>
-      )}
-
-      {/* 搜索框 */}
-      {!collapsed ? (
-        <div className="p-3">
-          <div className="relative">
-            <MagnifyingGlassIcon className="absolute left-2 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-            <Input
-              placeholder={t("search_placeholder")}
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              onFocus={() => setSearchDialogOpen(true)}
-              className="pl-8 shadow-none"
+        ) : (
+          <div className="p-3 flex justify-center">
+            <PlusIcon
+              onClick={createConversation}
+              className="w-5 h-5 cursor-pointer shrink-0 hover:text-primary transition-colors"
+              aria-label="New chat"
+              role="button"
             />
           </div>
-        </div>
-      ) : (
-        <div className="p-3 flex justify-center">
-          <MagnifyingGlassIcon
-            className="w-5 h-5 cursor-pointer shrink-0 hover:text-primary transition-colors"
+        )}
+
+        {/* 搜索按钮 */}
+        {!collapsed ? (
+          <div
             onClick={() => setSearchDialogOpen(true)}
-            aria-label="Search"
-            role="button"
-          />
-        </div>
-      )}
+            className="w-full flex items-center justify-start gap-2 px-3 py-2 rounded-lg cursor-pointer hover:bg-accent transition-colors"
+          >
+            <MagnifyingGlassIcon className="w-5 h-5 shrink-0" />
+            <span className="text-sm">
+              {t("search_placeholder")}
+            </span>
+          </div>
+        ) : (
+          <div className="p-3 flex justify-center">
+            <MagnifyingGlassIcon
+              className="w-5 h-5 cursor-pointer shrink-0 hover:text-primary transition-colors"
+              onClick={() => setSearchDialogOpen(true)}
+              aria-label="Search"
+              role="button"
+            />
+          </div>
+        )}
+
+        {/* 加密数据中心按钮 */}
+        {!collapsed ? (
+          <div
+            onClick={() => router.push(`/${locale}/analytics`)}
+            className="w-full flex items-center justify-start gap-2 px-3 py-2 rounded-lg cursor-pointer hover:bg-accent transition-colors"
+          >
+            <BarChartIcon className="w-5 h-5 shrink-0" />
+            <span className="text-sm">{t("analytics")}</span>
+          </div>
+        ) : (
+          <div className="p-3 flex justify-center">
+            <BarChartIcon
+              onClick={() => router.push(`/${locale}/analytics`)}
+              className="w-5 h-5 cursor-pointer shrink-0 hover:text-primary transition-colors"
+              aria-label="Analytics"
+              role="button"
+            />
+          </div>
+        )}
+      </div>
 
       {/* 对话列表 */}
       <ScrollArea className="flex-1">
         {!collapsed && (
           <div className="p-2 space-y-1">
-            {filteredConversations.length === 0 ? (
+            {conversations.length === 0 ? (
               <div className="text-center text-sm text-muted-foreground py-8">
                 {t("no_conversations")}
               </div>
             ) : (
-              filteredConversations.map((conv) => (
+              conversations.map((conv) => (
                 <div
                   key={conv.id}
                   className={cn(
@@ -256,7 +280,10 @@ export function ChatSidebar({ collapsed = false, onToggleCollapse, onClose }: Ch
       <ChatUserSection collapsed={collapsed} />
 
       {/* 搜索弹窗 */}
-      <ChatSearchDialog open={searchDialogOpen} onOpenChange={setSearchDialogOpen} />
+      <ChatSearchDialog
+        open={searchDialogOpen}
+        onOpenChange={setSearchDialogOpen}
+      />
     </div>
   );
 }

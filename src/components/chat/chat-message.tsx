@@ -12,12 +12,47 @@ import { TypeWriterMarkdown } from "./typewriter-markdown";
 import { LightningBoltIcon, FileTextIcon, DownloadIcon, CopyIcon, Share1Icon } from "@radix-ui/react-icons";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { createDebug } from "@/lib/debug";
+import type { Entity } from "@/types/entity";
 
 const debug = createDebug('ChatMessage');
 
 interface ChatMessageProps {
   message: Message;
   isGenerating?: boolean; // 是否正在生成中
+}
+
+/**
+ * 调用 NER API 识别文本实体
+ */
+async function fetchEntities(content: string): Promise<Entity[]> {
+  try {
+    const response = await fetch('/api/ner', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ text: content }), // 后端接收参数是 text
+    });
+
+    if (!response.ok) {
+      throw new Error(`NER API error: ${response.statusText}`);
+    }
+
+    const result = await response.json();
+
+    if (result.code === 0 && result.data?.entities) {
+      debug.log('✅ NER识别成功', {
+        entitiesCount: result.data.entities.length,
+        entities: result.data.entities
+      });
+      return result.data.entities;
+    }
+
+    return [];
+  } catch (error) {
+    debug.error('❌ NER识别失败', error);
+    return [];
+  }
 }
 
 export function ChatMessage({ message, isGenerating = false }: ChatMessageProps) {
@@ -27,6 +62,9 @@ export function ChatMessage({ message, isGenerating = false }: ChatMessageProps)
   // 计算 Tab 可见性
   const hasSteps = message.steps && message.steps.length > 0;
   const hasContent = message.content && message.content.trim().length > 0;
+
+  // NER 实体状态
+  const [entities, setEntities] = useState<Entity[]>([]);
 
   // 调试日志 - 追踪每次渲染
   useEffect(() => {
@@ -70,6 +108,19 @@ export function ChatMessage({ message, isGenerating = false }: ChatMessageProps)
       prevContentLengthRef.current = currentLength;
     }
   }, [message.content, isGenerating, isUser, message.id, message.steps?.length]);
+
+  // NER调用逻辑：AI完成生成后调用
+  useEffect(() => {
+    // 只对 assistant 消息处理，且满足：不在生成中 + 有内容 + 还没有实体数据
+    if (!isUser && !isGenerating && hasContent && entities.length === 0) {
+      debug.log('🔍 触发NER调用', {
+        messageId: message.id,
+        contentLength: message.content.length
+      });
+
+      fetchEntities(message.content).then(setEntities);
+    }
+  }, [isUser, isGenerating, hasContent, entities.length, message.content, message.id]);
 
   return (
     <div
@@ -125,6 +176,7 @@ export function ChatMessage({ message, isGenerating = false }: ChatMessageProps)
                     content={message.content}
                     isGenerating={isGenerating}
                     speed={15}
+                    entities={entities}
                     className={cn(
                       // 统一字体大小为text-sm
                       "text-sm",
@@ -252,6 +304,7 @@ export function ChatMessage({ message, isGenerating = false }: ChatMessageProps)
                 content={message.content}
                 isGenerating={isGenerating}
                 speed={15}
+                entities={entities}
                 className={cn(
                   // 统一字体大小为text-sm
                   "text-sm",
