@@ -1,7 +1,7 @@
 "use client";
 
-import { ProjectCard } from "./project-card";
-import { TokenCard } from "./token-card";
+import { ProjectCard } from "./project/project-card";
+import { TokenCard } from "./token/token-card";
 import { InfoCircledIcon } from "@radix-ui/react-icons";
 import { cn } from "@/lib/utils";
 import type { EntityType } from "@/types/entity";

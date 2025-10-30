@@ -27,6 +27,70 @@ export interface ProjectDetail {
   links: ProjectLink[];
   total_funding: number;
   x_accounts: XAccount[];
+  tokens?: ProjectToken[];
+  events?: ProjectEvent[];
+  news?: ProjectNews[];
+  team_members?: TeamMember[];
+  contracts?: ProjectContract[];
+  exchanges?: Exchange[];
+  similar_projects?: SimilarProject[];
+  coingecko_data?: {
+    market_chart?: {
+      price?: {
+        data: [number, number][];
+      };
+    };
+  };
+}
+
+export interface ProjectToken {
+  name: string;
+  symbol: string;
+  logo?: string;
+  price?: number;
+  market_cap?: number;
+  volume_24h?: number;
+  holders?: number;
+  contract_address?: string;
+}
+
+export interface ProjectEvent {
+  title: string;
+  date?: string;
+  description?: string;
+}
+
+export interface ProjectNews {
+  title: string;
+  url: string;
+  source?: string;
+  publish_time?: string;
+}
+
+export interface TeamMember {
+  name: string;
+  title?: string;
+  avatar?: string;
+  linkedin?: string;
+  twitter?: string;
+}
+
+export interface ProjectContract {
+  chain: string;
+  address: string;
+  explorer_url?: string;
+}
+
+export interface Exchange {
+  name: string;
+  logo?: string;
+  url?: string;
+}
+
+export interface SimilarProject {
+  name: string;
+  logo?: string;
+  tags?: string[];
 }
 
 export interface ProjectLink {
@@ -174,4 +238,81 @@ export interface TokenDetail {
 export interface BackendTokenResponse {
   success: boolean;
   data: TokenDetail;
+}
+
+/**
+ * 搜索项目列表项
+ */
+export interface SearchProjectItem {
+  id: string;
+  name: string;
+  logo: string;
+  one_liner: string;
+  description: string | null;
+  tags: string[];
+  ecosystem: string[];
+  symbol: string | null;
+  price: string | null;
+  market_cap: string | null;
+  active: boolean;
+  followers: number;
+  heat: number;
+  influence: number;
+  synced_at: string;
+}
+
+/**
+ * 搜索项目列表响应
+ */
+export interface SearchProjectsResponse {
+  success: boolean;
+  data: {
+    projects: SearchProjectItem[];
+    page: number;
+    page_size: number;
+    total: number;
+    has_more: boolean;
+  };
+}
+
+/**
+ * 搜索Token列表项
+ */
+export interface SearchTokenItem {
+  symbol: string;
+  name: string;
+  chain_name: string;
+  chain_id: string;
+  contract_address: string;
+  decimals: number;
+  price: string;
+  market_cap: string;
+  icon_url: string;
+  priority: number;
+  description: string;
+}
+
+/**
+ * 搜索Token列表响应
+ */
+export interface SearchTokensResponse {
+  success: boolean;
+  total: number;
+  tokens: SearchTokenItem[];
+}
+
+/**
+ * 统一搜索结果项 (用于自动补全)
+ */
+export interface SearchResultItem {
+  type: 'project' | 'token';
+  id: string; // project用id, token用symbol
+  name: string;
+  symbol?: string | null;
+  logo: string;
+  price: string | null;
+  market_cap: string | null;
+  priceChange?: string | null; // 涨跌幅
+  heat?: number; // 热度
+  tags?: string[]; // 标签
 }

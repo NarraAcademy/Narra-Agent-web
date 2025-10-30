@@ -15,7 +15,6 @@ import {
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
-  PlusIcon,
   MagnifyingGlassIcon,
   ChatBubbleIcon,
   DotsVerticalIcon,
@@ -23,6 +22,7 @@ import {
   BarChartIcon,
 } from "@radix-ui/react-icons";
 import { LuPanelLeft as PinLeftIcon } from "react-icons/lu";
+import { PlusCircle as PlusIcon } from "lucide-react";
 
 import { useState } from "react";
 import { cn } from "@/lib/utils";

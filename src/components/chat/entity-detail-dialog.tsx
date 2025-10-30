@@ -63,7 +63,7 @@ export function EntityDetailDialog({ entity, type, open, onOpenChange }: EntityD
           </div>
         </DialogHeader>
 
-        <EntityDetailContent entity={entity} type={type} />
+        <EntityDetailContent entity={entity} type={type} showToc={false} />
       </DialogContent>
     </Dialog>
   );

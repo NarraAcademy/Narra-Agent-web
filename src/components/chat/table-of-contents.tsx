@@ -65,7 +65,7 @@ export function TableOfContents({ items }: TableOfContentsProps) {
   if (items.length === 0) return null;
 
   return (
-    <nav className="hidden lg:block sticky top-24 self-start w-64 shrink-0">
+    <nav className="hidden lg:block sticky top-6 self-start w-64 shrink-0">
       <div className="space-y-1">
         <p className="text-sm font-semibold text-foreground mb-3">
           On This Page

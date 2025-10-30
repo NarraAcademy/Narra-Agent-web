@@ -4,9 +4,27 @@ import { useProjectDetail } from "@/hooks/use-project-detail";
 import { ExternalLinkIcon } from "@radix-ui/react-icons";
 import { cn } from "@/lib/utils";
 import { CyberScoreChart } from "./cyber-score-chart";
-import { PriceChart } from "./price-chart";
+import { PriceChart } from "../price-chart";
 import { Badge } from "@/components/ui/badge";
 import type { ProjectDetail } from "@/types/entity";
+
+// 价格数据点类型
+interface PriceDataPoint {
+  timestamp: number;
+  datetime: string;
+  price: number;
+}
+
+// 价格图表数据类型
+interface PriceChartData {
+  current: number;
+  start: number;
+  change: number;
+  change_percentage: number;
+  high: number;
+  low: number;
+  data: PriceDataPoint[];
+}
 
 interface ProjectCardProps {
   entity: string;
@@ -124,8 +142,8 @@ export function ProjectCard({ entity }: ProjectCardProps) {
   // 获取网站链接
   const websiteLink = data.links?.find(link => link.type === 'web')?.value;
 
-  // 获取价格图表数据
-  const priceChartData = data.coingecko_data?.market_chart?.price;
+  // 获取价格图表数据 (后端已经返回完整的 PriceChartData 格式)
+  const priceChartData = data.coingecko_data?.market_chart?.price as PriceChartData | null | undefined;
 
   return (
     <div className="space-y-4 text-sm max-w-[400px]">

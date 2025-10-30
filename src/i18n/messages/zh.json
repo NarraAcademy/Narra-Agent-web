@@ -215,5 +215,17 @@
     "input_mode_deep_research": "Deep Research",
     "input_mode_ai_agent": "AI Agent",
     "analytics": "加密数据中心"
+  },
+  "analytics": {
+    "title": "加密数据中心",
+    "subtitle": "搜索加密货币数据、市场分析和区块链信息",
+    "search_placeholder": "搜索项目、代币或合约地址",
+    "no_results": "未找到结果,试试其他关键词",
+    "card_market_title": "市场概览",
+    "card_market_desc": "查看实时市场数据和趋势",
+    "card_hot_title": "热门代币",
+    "card_hot_desc": "探索热门加密货币和项目",
+    "card_analytics_title": "数据分析",
+    "card_analytics_desc": "深入挖掘链上数据和指标"
   }
 }
