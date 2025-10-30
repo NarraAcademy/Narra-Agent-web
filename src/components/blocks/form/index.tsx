@@ -116,7 +116,7 @@ export default function ({
     try {
       const formData = new FormData();
       Object.entries(data).forEach(([key, value]) => {
-        formData.append(key, value);
+        formData.append(key, value as string);
       });
 
       const res = await submit.handler(formData, passby);
@@ -165,14 +165,14 @@ export default function ({
                   <FormControl>
                     {item.type === "textarea" ? (
                       <Textarea
-                        {...field}
+                        {...(field as any)}
                         placeholder={item.placeholder}
                         {...item.attributes}
                       />
                     ) : item.type === "select" ? (
                       <Select
                         onValueChange={field.onChange}
-                        defaultValue={field.value}
+                        defaultValue={field.value as string}
                         {...item.attributes}
                       >
                         <SelectTrigger className="w-full bg-background rounded-md">
@@ -188,18 +188,18 @@ export default function ({
                       </Select>
                     ) : item.type === "markdown_editor" ? (
                       <MarkdownEditor
-                        value={field.value}
+                        value={field.value as string}
                         onChange={field.onChange}
                       />
                     ) : item.type === "editor" ||
                       item.type === "richtext_editor" ? (
                       <MarkdownEditor
-                        value={field.value}
+                        value={field.value as string}
                         onChange={field.onChange}
                       />
                     ) : (
                       <Input
-                        {...field}
+                        {...(field as any)}
                         type={item.type || "text"}
                         placeholder={item.placeholder}
                         className="bg-background rounded-md placeholder:text-base-content/50"
