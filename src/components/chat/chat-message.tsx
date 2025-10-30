@@ -26,7 +26,7 @@ interface ChatMessageProps {
  */
 async function fetchEntities(content: string): Promise<Entity[]> {
   try {
-    const response = await fetch('/api/ner', {
+    const response = await fetch('/api/services/ner', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

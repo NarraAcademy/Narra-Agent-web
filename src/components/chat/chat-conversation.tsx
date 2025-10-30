@@ -45,7 +45,7 @@ export function ChatConversation() {
     setMessages,
     append,
   } = useChat({
-    api: "/api/chat",
+    api: "/api/services/chat",
     id: (params?.id as string) || undefined, // 多对话支持
     onFinish: (message) => {
       debug.log("AI响应完成", message);

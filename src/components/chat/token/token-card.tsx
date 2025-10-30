@@ -231,7 +231,7 @@ export function TokenCard({ entity }: TokenCardProps) {
   };
 
   const { data: token, error, isLoading } = useSWR<TokenDetail>(
-    `/api/token?token=${encodeURIComponent(entity)}`,
+    `/api/services/token?token=${encodeURIComponent(entity)}`,
     fetcher,
     {
       revalidateOnFocus: false,

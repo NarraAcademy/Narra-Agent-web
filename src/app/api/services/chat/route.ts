@@ -14,7 +14,7 @@ interface SSEEvent {
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    console.log('[API /api/chat] 收到请求body:', JSON.stringify(body).slice(0, 200));
+    console.log('[API /api/services/chat] 收到请求body:', JSON.stringify(body).slice(0, 200));
 
     // 兼容两种格式：
     // 1. AI SDK格式: { messages: [...], data: {...} }
@@ -49,13 +49,13 @@ export async function POST(req: Request) {
       });
     }
 
-    console.log('[API /api/chat] 提取的消息:', message.slice(0, 100));
-    console.log('[API /api/chat] 使用深度思考:', useDeepThinking);
+    console.log('[API /api/services/chat] 提取的消息:', message.slice(0, 100));
+    console.log('[API /api/services/chat] 使用深度思考:', useDeepThinking);
 
     // 对接后端SSE接口
     const backendUrl = `https://narra-agent-engine-dev-875677964461.asia-southeast1.run.app/api/v1/workflows/alpha/stream?user_input=${encodeURIComponent(message)}&use_deep_thinking=${useDeepThinking}`;
 
-    console.log('[API /api/chat] 开始请求后端:', backendUrl);
+    console.log('[API /api/services/chat] 开始请求后端:', backendUrl);
 
     const response = await fetch(backendUrl, {
       method: "GET",
@@ -67,13 +67,13 @@ export async function POST(req: Request) {
       },
     });
 
-    console.log('[API /api/chat] 后端响应状态:', response.status);
+    console.log('[API /api/services/chat] 后端响应状态:', response.status);
 
     if (!response.ok) {
       throw new Error(`Backend API error: ${response.statusText}`);
     }
 
-    console.log('[API /api/chat] 开始转换SSE流为AI SDK格式');
+    console.log('[API /api/services/chat] 开始转换SSE流为AI SDK格式');
 
     // 创建自定义流,转换后端SSE为AI SDK格式
     const reader = response.body?.getReader();
@@ -95,7 +95,7 @@ export async function POST(req: Request) {
           while (true) {
             const { done, value } = await reader.read();
             if (done) {
-              console.log('[API /api/chat] SSE流读取完成');
+              console.log('[API /api/services/chat] SSE流读取完成');
 
               // 发送最终的data annotation(包含steps和metadata)
               if (steps.length > 0 || metadata) {
@@ -128,7 +128,7 @@ export async function POST(req: Request) {
                   switch (parsed.event) {
                     case "start":
                       // 开始事件,可以忽略或记录
-                      console.log('[API /api/chat] Stream started');
+                      console.log('[API /api/services/chat] Stream started');
                       break;
 
                     case "step":
@@ -192,7 +192,7 @@ export async function POST(req: Request) {
                       // 流式输出文本内容
                       if (parsed.data && parsed.data.content) {
                         accumulatedContent += parsed.data.content;
-                        console.log(`[API /api/chat] 🌊 收到result事件chunk:`, {
+                        console.log(`[API /api/services/chat] 🌊 收到result事件chunk:`, {
                           chunkLength: parsed.data.content.length,
                           totalAccumulated: accumulatedContent.length,
                           preview: parsed.data.content.slice(0, 50)
@@ -203,7 +203,7 @@ export async function POST(req: Request) {
                           .replace(/"/g, '\\"')
                           .replace(/\n/g, '\\n');
                         controller.enqueue(encoder.encode(`0:"${textChunk}"\n`));
-                        console.log(`[API /api/chat] ✅ 已发送chunk到响应流`);
+                        console.log(`[API /api/services/chat] ✅ 已发送chunk到响应流`);
                       }
                       break;
 
@@ -225,25 +225,25 @@ export async function POST(req: Request) {
                       break;
 
                     case "error":
-                      console.error('[API /api/chat] 后端错误:', parsed.error);
+                      console.error('[API /api/services/chat] 后端错误:', parsed.error);
                       controller.enqueue(encoder.encode(`3:{"error":"${parsed.error || '未知错误'}"}\n`));
                       break;
 
                     case "done":
-                      console.log('[API /api/chat] SSE流结束');
+                      console.log('[API /api/services/chat] SSE流结束');
                       break;
 
                     default:
-                      console.warn('[API /api/chat] 未知事件类型:', parsed.event);
+                      console.warn('[API /api/services/chat] 未知事件类型:', parsed.event);
                   }
                 } catch (e) {
-                  console.warn('[API /api/chat] 解析SSE数据失败:', data, e);
+                  console.warn('[API /api/services/chat] 解析SSE数据失败:', data, e);
                 }
               }
             }
           }
         } catch (error) {
-          console.error('[API /api/chat] 流处理错误:', error);
+          console.error('[API /api/services/chat] 流处理错误:', error);
           controller.error(error);
         }
       },
@@ -258,7 +258,7 @@ export async function POST(req: Request) {
       },
     });
   } catch (error) {
-    console.error("[API /api/chat] 错误:", error);
+    console.error("[API /api/services/chat] 错误:", error);
     return new Response(
       JSON.stringify({ error: "Failed to process chat request" }),
       {

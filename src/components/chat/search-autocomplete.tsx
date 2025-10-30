@@ -30,7 +30,7 @@ export function SearchAutocomplete() {
   // 获取项目搜索结果（包含tokens，因为有些项目本身就是token）
   // 使用 SWR 的 dedupingInterval 来实现防抖效果
   const { data: projectsData, isLoading } = useSWR<ApiResponse<SearchProjectsResponse>>(
-    shouldSearch ? `/api/search-projects?query=${encodeURIComponent(query)}` : null,
+    shouldSearch ? `/api/services/search-projects?query=${encodeURIComponent(query)}` : null,
     (url: string) => fetch(url).then((res) => res.json()),
     {
       revalidateOnFocus: false,

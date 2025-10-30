@@ -89,7 +89,7 @@ export function TokenDetailContent({ entity, showToc }: { entity: string; showTo
   };
 
   const { data: token, error, isLoading } = useSWR<TokenDetail>(
-    `/api/token?token=${encodeURIComponent(entity)}`,
+    `/api/services/token?token=${encodeURIComponent(entity)}`,
     fetcher,
     { revalidateOnFocus: false, revalidateOnReconnect: false }
   );
