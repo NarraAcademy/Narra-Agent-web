@@ -230,6 +230,11 @@ export interface TokenDetail {
   description: string;
   categories: string[];
   platforms: Record<string, string>;
+  market_chart?: {
+    price?: any; // 后端直接返回完整的 PriceChartData 格式
+    market_cap?: any;
+    volume?: any;
+  };
 }
 
 /**

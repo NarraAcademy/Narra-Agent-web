@@ -6,6 +6,25 @@ import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { TableOfContents, type TocItem } from "../table-of-contents";
 import type { TokenDetail, ApiResponse, BackendTokenResponse } from "@/types/entity";
+import { PriceChart } from "../price-chart";
+
+// 价格数据点类型
+interface PriceDataPoint {
+  timestamp: number;
+  datetime: string;
+  price: number;
+}
+
+// 价格图表数据类型
+interface PriceChartData {
+  current: number;
+  start: number;
+  change: number;
+  change_percentage: number;
+  high: number;
+  low: number;
+  data: PriceDataPoint[];
+}
 
 /**
  * 骨架屏组件
@@ -105,6 +124,9 @@ export function TokenDetailContent({ entity, showToc }: { entity: string; showTo
 
   const { market_data, links, categories, community_data, developer_data } = token;
 
+  // 后端已经返回完整的 PriceChartData 格式，直接使用（market_chart在根层级）
+  const priceChartData = token.market_chart?.price as PriceChartData | null | undefined;
+
   const formatLargeNumber = (value: string): string => {
     const num = parseFloat(value);
     if (isNaN(num)) return 'N/A';
@@ -133,6 +155,7 @@ export function TokenDetailContent({ entity, showToc }: { entity: string; showTo
   const tocItems: TocItem[] = [
     { id: 'overview', title: 'Overview', level: 1 },
     { id: 'price', title: 'Price & Market Data', level: 1 },
+    ...(priceChartData?.data?.length ? [{ id: 'price-chart', title: 'Price Chart', level: 1 }] : []),
     { id: 'supply', title: 'Supply Information', level: 1 },
     { id: 'community', title: 'Community & Development', level: 1 },
     { id: 'about', title: 'About', level: 1 },
@@ -260,6 +283,16 @@ export function TokenDetailContent({ entity, showToc }: { entity: string; showTo
             </div>
           </div>
         </section>
+
+        {/* Price Chart Section */}
+        {priceChartData && priceChartData.data && priceChartData.data.length > 0 && (
+          <section id="price-chart" className="animate-fade-in-up">
+            <SectionTitle id="price-chart">Price Chart (7d)</SectionTitle>
+            <div className="p-6 rounded-lg border border-border bg-muted/10">
+              <PriceChart priceData={priceChartData} />
+            </div>
+          </section>
+        )}
 
         {/* Supply Information Section */}
         <section id="supply" className="animate-fade-in-up">

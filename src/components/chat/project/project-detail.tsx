@@ -2,7 +2,7 @@
 
 import { useProjectDetail } from "@/hooks/use-project-detail";
 import { ExternalLinkIcon, CopyIcon, CheckIcon } from "@radix-ui/react-icons";
-import { cn } from "@/lib/utils";
+import { cn, hasValue } from "@/lib/utils";
 import { useState } from "react";
 import { CyberScoreChart } from "./cyber-score-chart";
 import { PriceChart } from "../price-chart";
@@ -217,17 +217,17 @@ export function ProjectDetailContent({ entity, showToc }: { entity: string; show
 
             {/* Key Metrics */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {data.total_funding > 0 && (
+              {hasValue(data.total_funding) && (
                 <div className="p-4 rounded-lg border border-border bg-muted/20">
                   <DataItem label="Total Funding" value={formatMoney(data.total_funding)} highlight />
                 </div>
               )}
-              {mainXAccount?.followers_count && (
+              {hasValue(mainXAccount?.followers_count) && (
                 <div className="p-4 rounded-lg border border-border bg-muted/20">
                   <DataItem label="X Followers" value={formatCount(mainXAccount.followers_count)} highlight />
                 </div>
               )}
-              {mainXAccount?.smart_followers_count && (
+              {hasValue(mainXAccount?.smart_followers_count) && (
                 <div className="p-4 rounded-lg border border-border bg-muted/20">
                   <DataItem label="Smart Followers" value={formatCount(mainXAccount.smart_followers_count)} highlight />
                 </div>
@@ -276,16 +276,16 @@ export function ProjectDetailContent({ entity, showToc }: { entity: string; show
                       </div>
 
                       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                        {price && (
+                        {hasValue(price) && (
                           <DataItem label="Price" value={formatPrice(price)} highlight />
                         )}
-                        {marketCap && (
+                        {hasValue(marketCap) && (
                           <DataItem label="Market Cap" value={formatMoney(marketCap)} />
                         )}
-                        {volume24h && (
+                        {hasValue(volume24h) && (
                           <DataItem label="24h Volume" value={formatMoney(volume24h)} />
                         )}
-                        {tokenData.holders && (
+                        {hasValue(tokenData.holders) && (
                           <DataItem label="Holders" value={formatCount(tokenData.holders)} />
                         )}
                       </div>
