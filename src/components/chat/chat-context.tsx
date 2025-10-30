@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useLocale } from "next-intl";
 
@@ -358,7 +358,7 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
   };
 
   // 同步useChat的消息到localStorage
-  const syncConversationFromUseChat = (conversationId: string, useChatMessages: any[], data?: any) => {
+  const syncConversationFromUseChat = useCallback((conversationId: string, useChatMessages: any[], data?: any) => {
     console.log("[ChatContext] syncConversationFromUseChat:", {
       conversationId,
       messageCount: useChatMessages.length,
@@ -396,7 +396,7 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
         return c;
       })
     );
-  };
+  }, []);
 
   const currentConversation = conversations.find((c) => c.id === currentConversationId);
   const currentMessages = currentConversation?.messages || [];

@@ -23,6 +23,7 @@
     "@ai-sdk/openai-compatible": "^0.0.17",
     "@ai-sdk/provider": "^1.0.8",
     "@ai-sdk/provider-utils": "^2.0.7",
+    "@ai-sdk/react": "^2.0.82",
     "@ai-sdk/replicate": "^0.1.10",
     "@devnomic/marquee": "^1.0.2",
     "@dnd-kit/core": "^6.3.1",
@@ -63,7 +64,7 @@
     "@types/canvas-confetti": "^1.9.0",
     "@types/mdx": "^2.0.13",
     "@uiw/react-md-editor": "^4.0.5",
-    "ai": "^4.1.64",
+    "ai": "^5.0.82",
     "aws4fetch": "^1.0.20",
     "canvas-confetti": "^1.9.3",
     "class-variance-authority": "^0.7.1",
@@ -114,7 +115,7 @@
     "use-stick-to-bottom": "^1.1.1",
     "uuid": "^11.0.3",
     "vaul": "^1.1.2",
-    "zod": "^3.24.1"
+    "zod": "^4.1.12"
   },
   "devDependencies": {
     "@next/bundle-analyzer": "^15.1.3",
