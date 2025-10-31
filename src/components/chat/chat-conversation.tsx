@@ -132,12 +132,15 @@ export function ChatConversation() {
         // 从消息中提取 steps 和 metadata
         const finalSteps = getMessageSteps(lastMessage);
         const finalMetadata = (lastMessage as any).metadata || null;
+        const messageContent = getMessageContent(lastMessage);
 
         debug.log('最终提取的 steps 数量', finalSteps.length);
         debug.log('最终提取的 metadata', finalMetadata);
+        debug.log('消息内容长度', messageContent.length);
 
-        // 如果有 steps 或 metadata,保存到 localStorage
-        if (params?.id && (finalSteps.length > 0 || finalMetadata)) {
+        // 只有当消息确实有内容时才保存（避免覆盖已有的正确数据）
+        // 如果是历史数据同步（content为空），跳过保存
+        if (params?.id && messageContent.length > 0) {
           debug.log('同步最终数据到 localStorage');
 
           // 创建兼容的消息对象 (包含 content 字段以兼容 localStorage 格式)
@@ -238,20 +241,10 @@ export function ChatConversation() {
         debug.log('同步localStorage到useChat (切换对话)');
         const useChatMessages = currentMessages.map((msg) => ({
           id: msg.id,
-          role: msg.role as "user" | "assistant" | "system",
+          role: msg.role as "user" | "assistant",
+          content: msg.content,
+          steps: msg.steps,
           metadata: msg.metadata,
-          // AI SDK 5.0: 消息使用 parts 数组格式
-          parts: [
-            {
-              type: 'text' as const,
-              text: msg.content,
-            },
-            // 如果有 steps,添加到 parts (如果后端支持)
-            ...(msg.steps || []).map((step: any) => ({
-              type: 'step-start' as const,
-              ...step,
-            })),
-          ],
         }));
         setMessages(useChatMessages as any);
       }

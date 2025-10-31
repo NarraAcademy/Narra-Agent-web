@@ -101,36 +101,44 @@ const WorkflowStepCardComponent = ({ step }: WorkflowStepCardProps) => {
   const IconComponent = iconInfo.icon;
 
   return (
-    <div className="border-l-2 border-muted pl-3">
+    <div className="rounded-lg border border-border bg-card shadow-sm hover:shadow-md transition-shadow">
       {/* Step header - Always expanded, not collapsible */}
-      <div className="w-full flex items-center gap-2 py-1.5">
-        {/* Agent/Status icon - Using cn() for className concatenation */}
-        <IconComponent className={cn("w-4 h-4", iconInfo.color)} />
+      <div className="w-full flex items-center gap-3 p-3">
+        {/* Agent/Status icon with background */}
+        <div className={cn(
+          "flex items-center justify-center w-8 h-8 rounded-lg shrink-0",
+          "bg-gradient-to-br from-background to-muted/50"
+        )}>
+          <IconComponent className={cn("w-4 h-4", iconInfo.color)} />
+        </div>
 
         {/* Step information */}
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
-            <h3 className="font-medium text-sm">
+            <h3 className="font-semibold text-sm">
               {step.title || `Step ${step.id}`}
             </h3>
             {step.agent && (
-              <span className="text-xs text-muted-foreground">
+              <span className={cn(
+                "px-2 py-0.5 text-xs rounded-full",
+                "bg-muted/50 text-muted-foreground font-medium"
+              )}>
                 {step.agent}
               </span>
             )}
           </div>
         </div>
 
-        {/* Reasoning count */}
-        <div className="shrink-0 text-xs text-muted-foreground">
-          {step.reasoning.length} items
+        {/* Reasoning count badge */}
+        <div className="shrink-0 px-2 py-1 rounded-md bg-muted/30 text-xs font-medium text-muted-foreground">
+          {step.reasoning.length} {step.reasoning.length === 1 ? 'item' : 'items'}
         </div>
       </div>
 
       {/* Reasoning list - Sequential fade-in animation */}
       {step.reasoning.length > 0 && (
         <motion.div
-          className="mt-1 ml-6 space-y-1"
+          className="px-3 pb-3 space-y-1.5"
           initial="hidden"
           animate="visible"
           variants={{
@@ -165,7 +173,7 @@ const WorkflowStepCardComponent = ({ step }: WorkflowStepCardProps) => {
 
       {/* Empty state */}
       {step.reasoning.length === 0 && (
-        <div className="ml-6 text-xs text-muted-foreground py-2">
+        <div className="px-3 pb-3 text-xs text-muted-foreground">
           No reasoning records
         </div>
       )}

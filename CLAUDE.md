@@ -2,246 +2,130 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-## Project Overview
+## 项目信息
 
-Narra Agent is an AI-powered cryptocurrency investment assistant built with Next.js 15 (App Router), TypeScript, and React 19. The application provides real-time market analysis, professional investment insights, and an intelligent chatbot interface powered by AI models.
+Narra Agent - AI 加密货币投资助手
+- Next.js 15 + React 19 + TypeScript 5
+- 核心功能：实时市场分析、AI 聊天对话
 
-## Development Commands
+## 开发命令
 
-### Essential Commands
 ```bash
-# Development
-pnpm dev                    # Start development server with Turbopack
-PORT=3000 pnpm dev          # Start on specific port
+pnpm dev              # 启动开发服务器
+PORT=3000 pnpm dev    # 指定端口启动
+pnpm build            # 生产构建
+pnpm lint             # 代码检查
 
-# Build & Production
-pnpm build                  # Production build
-pnpm start                  # Start production server
-pnpm lint                   # Run ESLint
-pnpm analyze                # Analyze bundle size
-
-# Database (Drizzle ORM)
-pnpm db:generate            # Generate migrations
-pnpm db:migrate             # Run migrations
-pnpm db:studio              # Open Drizzle Studio
-pnpm db:push                # Push schema changes
+# 数据库
+pnpm db:generate      # 生成迁移
+pnpm db:migrate       # 执行迁移
+pnpm db:studio        # 打开管理界面
 ```
 
-### Environment Setup
-```bash
-cp .env.example .env.development    # Development environment
-cp .env.example .env.production     # Production environment
-```
+## 路由结构
 
-## Architecture & Key Patterns
+使用 Next.js 路由组实现布局隔离：
+- `(default)/`: 带 Header+Footer 的营销页面
+- `(chat)/`: 纯净聊天界面，无 Header/Footer
+- `(admin)/`: 管理后台
+- `(console)/`: 用户控制台
 
-### Route Group Structure
-The app uses Next.js 15 App Router with **route groups** for layout isolation:
+**关键**：根布局 `[locale]/layout.tsx` 仅提供 Provider，不包含 UI 组件
 
-- `(default)/`: Main layout with Header + Footer (marketing pages, pricing, etc.)
-- `(chat)/`: Chat interface layout **without** Header/Footer (clean chat UI)
-- `(admin)/`: Admin panel layout
-- `(docs)/`: Documentation layout (fumadocs)
-- `(console)/`: User console/dashboard layout
-- `(legal)/`: Legal pages layout
+## Chatbot 核心流程
 
-**Critical**: Each route group has its own `layout.tsx`. The root `[locale]/layout.tsx` only provides Providers (NextIntl, NextAuth, Theme), not UI elements.
+### 消息流转
 
-### Internationalization Architecture
+1. `/chat` 页面发送 → 创建对话 → 跳转 `/chat/[id]`
+2. `useSSEChat.sendMessage()` → POST `/api/services/chat`
+3. SSE 流事件：
+   - `step`: 工作流步骤
+   - `reasoning`: 推理过程
+   - `result`: 内容块
+   - `complete`: 完成标记
+4. 实时渲染：
+   - `WorkflowStepCard`: 卡片显示推理步骤
+   - `TypeWriterMarkdown`: 打字机效果渲染报告
+5. Tab 切换：
+   - 同时有 steps + content 时显示双 Tab
+   - 生成中自动切换到"研究结果"
+   - 历史消息默认"研究结果"
 
-**Multi-level i18n system** using next-intl:
+### 数据持久化
 
-1. **Global Messages** (`src/i18n/messages/{locale}.json`)
-   - Navigation, user menu, feedback, chat UI
-   - Usage: `const t = useTranslations("chat")`
+- 存储键：`narra-agent-conversations`
+- 格式：`{ conversations: [{ id, title, messages }] }`
+- 保存条件：`messageContent.length > 0`（防止空数据覆盖）
 
-2. **Page-specific Messages** (`src/i18n/pages/{page}/{locale}.json`)
-   - Landing page, pricing, showcase content
-   - Usage: Loaded in page components, accessed via `getTranslations()`
+### 消息数据结构
 
-**Language Support**: `zh` (Chinese), `en` (English)
-
-**URL Pattern**: `/{locale}/...` (e.g., `/zh/pricing`, `/en/chat`)
-
-### State Management
-
-**React Context Pattern** - Two main contexts:
-
-1. **AppContext** (`src/contexts/app.tsx`)
-   - Global app state (user, auth, modals)
-   - User authentication state (NextAuth integration)
-   - Sign-in modal control, feedback modal
-   - Invite code handling (localStorage-based)
-
-2. **ChatContext** (`src/components/chat/chat-context.tsx`)
-   - Chat-specific state management
-   - Conversation history (localStorage persistence)
-   - Message CRUD operations
-   - Loading states for AI responses
-
-**Key Pattern**: Context providers are nested in `[locale]/layout.tsx`:
-```tsx
-<NextIntlClientProvider>
-  <NextAuthSessionProvider>
-    <AppContextProvider>
-      <ThemeProvider>
-        {children}
-      </ThemeProvider>
-    </AppContextProvider>
-  </NextAuthSessionProvider>
-</NextIntlClientProvider>
-```
-
-### Component Architecture
-
-**Block Components** (`src/components/blocks/`)
-- Reusable layout blocks for landing pages
-- Header, Footer, Hero, Features, Pricing, etc.
-- Each block has TypeScript types in `src/types/blocks/`
-- Configured via i18n JSON files
-
-**UI Components** (`src/components/ui/`)
-- Shadcn/ui primitives
-- Radix UI components with Tailwind styling
-- Button, Dialog, Dropdown, Toast (sonner), etc.
-
-**Chat Components** (`src/components/chat/`)
-- Self-contained chat feature with own context
-- Components: ChatLayout, ChatConversation, ChatMessage, ChatInput, ChatSidebar
-- Uses SSE (Server-Sent Events) for streaming AI responses
-- localStorage for conversation persistence
-
-### API Routes Structure
-
-Located in `src/app/api/`:
-
-- **Authentication**: `/api/auth/*` (NextAuth endpoints)
-- **User Management**: `/api/get-user-info`, `/api/update-invite`
-- **Payments**: `/api/checkout` (Stripe integration)
-- **Chat**: `/api/chat` (SSE streaming endpoint for AI responses)
-
-**API Response Pattern**:
 ```typescript
-{
-  code: 0 | 1,      // 0 = success, 1 = error
-  message: string,
-  data: any
+interface ChatMessage {
+  id: string;
+  role: 'user' | 'assistant';
+  content: string;        // 必须是字符串，不是 parts 数组
+  steps?: WorkflowStep[];
+  metadata?: object;
 }
 ```
 
-### Database (Drizzle ORM)
+### 刷新加载
 
-**Configuration**: `src/db/config.ts`
-**Schema**: `src/db/schema.ts`
-**Connection**: `src/db/index.ts`
+- localStorage → ChatContext → useSSEChat
+- **必须**使用 `{ content, steps, metadata }` 平面格式
+- **禁止**使用 AI SDK 5.0 的 `parts` 数组格式
 
-Uses PostgreSQL with Drizzle ORM. Migration workflow:
-1. Update schema in `schema.ts`
-2. Run `pnpm db:generate` to create migration
-3. Run `pnpm db:migrate` to apply
-4. Use `pnpm db:studio` for GUI exploration
+## 状态管理
 
-### Styling System
+- `AppContext`: 全局状态（用户、认证、弹窗）
+- `ChatContext`: 聊天状态（对话历史、消息 CRUD）
+- 持久化：localStorage（浏览器端）
 
-**Tailwind CSS 4** + **Shadcn/ui**
+## 关键约定
 
-- Theme configuration: `src/app/theme.css`
-- CSS variables for colors (light/dark mode support)
-- Use `cn()` utility from `@/lib/utils` for class merging
-- **Critical for Tailwind**: Never use template literals for dynamic classes (e.g., `md:grid-cols-${n}`). Use conditional rendering with complete class names:
-  ```tsx
-  // ❌ Wrong - doesn't compile
-  className={`grid md:grid-cols-${count}`}
+### 文件命名
+- 组件：PascalCase（`ChatMessage.tsx`）
+- 工具：camelCase（`cache.ts`）
+- 类型：PascalCase 接口
 
-  // ✅ Correct
-  className={cn(
-    "grid",
-    count === 3 && "md:grid-cols-3",
-    count === 4 && "md:grid-cols-4"
-  )}
-  ```
+### Tailwind CSS
+- **禁止**动态类名：`md:grid-cols-${n}` ❌
+- 使用条件渲染：`cn("grid", count === 3 && "md:grid-cols-3")` ✅
+- **禁止**固定宽高，使用内容撑开
+- **禁止**绝对定位布局
 
-### Authentication Flow
+### NextAuth
+- 版本：v5 (beta.25)
+- 配置：`src/auth/config.ts`
+- **必须**设置：`session: { strategy: "jwt" }`
 
-**NextAuth v5** (`next-auth@5.0.0-beta.25`)
+### 国际化
+- 使用 next-intl
+- 全局消息：`src/i18n/messages/{locale}.json`
+- 页面消息：`src/i18n/pages/{page}/{locale}.json`
+- 语言：`zh`, `en`
 
-- Providers: Email, Google, GitHub
-- Session handling in AppContext
-- Google One Tap login support (configurable)
-- Auth checks: `isAuthEnabled()`, `isGoogleOneTapEnabled()`
+## 常见问题
 
-## Important Conventions
+### 其他问题
 
-### Brand & Naming
-- **Brand Name**: "Narra Agent" 
-- Used in all user-facing content, metadata, i18n files
+4. **动态 Tailwind 类失效**
+   - 使用条件渲染完整类名
 
-### File Naming
-- Components: PascalCase (e.g., `ChatMessage.tsx`)
-- Utilities/libs: camelCase (e.g., `cache.ts`)
-- Types: PascalCase interfaces (e.g., `User`, `Message`)
+5. **布局泄漏到 chat 路由**
+   - 检查路由组结构，chat 必须在 `(chat)/`
 
-### Type Safety
-- All components must have proper TypeScript types
-- Use types from `src/types/` for shared interfaces
-- Define component props with explicit types
+6. **i18n 加载失败**
+   - 检查 URL 路径包含 locale
 
-### Data Flow Patterns
-- **Models** (`src/models/`): Database operations and data access
-- **Services** (`src/services/`): Business logic layer
-- **Lib** (`src/lib/`): Utility functions and helpers
+7. **Turbopack 缓存问题**
+   ```bash
+   rm -rf .next && pnpm dev
+   ```
 
-### Responsive Design
-- Mobile-first approach with Tailwind breakpoints
-- Use `md:`, `lg:` prefixes for larger screens
-- **Never use fixed width/height** - let content dictate size
-- **Never use absolute positioning** for layout
+## 技术栈
 
-## Key Integration Points
-
-### AI Integration
-- Multiple AI provider support (OpenAI, DeepSeek, OpenRouter)
-- Streaming responses using Server-Sent Events (SSE)
-- Chat API at `/api/chat` returns SSE stream with format:
-  ```
-  data: {"event": "report_chunk", "data": {"content": "..."}}
-  data: {"event": "complete", "data": {"final_report": "..."}}
-  ```
-
-### Payment Integration (Stripe)
-- Checkout flow: `/api/checkout` → Stripe → redirect
-- Product IDs configured in pricing JSON files
-- Subscription management via Stripe dashboard
-
-### Analytics
-- OpenPanel integration (`@openpanel/nextjs`)
-- Event tracking throughout the app
-
-## Development Notes
-
-### Hot Reload
-Development server uses Turbopack for fast refresh. If you encounter caching issues:
-```bash
-rm -rf .next
-pnpm dev
-```
-
-### Common Issues
-1. **Dynamic Tailwind classes not working**: Use conditional rendering with complete class names
-2. **Layout leaked into chat route**: Check route group structure - chat should be in `(chat)/`
-3. **i18n not loading**: Ensure locale is in URL path and messages files exist
-4. **localStorage errors**: Wrap in `typeof window !== 'undefined'` check
-
-### Testing API Endpoints
-Use files in `debug/` directory (e.g., `apitest.http`) with REST client extensions.
-
-## Technology Stack
-
-**Core**: Next.js 15, React 19, TypeScript 5, Tailwind CSS 4
-**Auth**: NextAuth v5
-**Database**: PostgreSQL + Drizzle ORM
-**UI**: Shadcn/ui, Radix UI, Framer Motion
-**Payments**: Stripe
-**AI**: Vercel AI SDK, OpenAI, DeepSeek
-**i18n**: next-intl
-**Docs**: Fumadocs (MDX-based documentation)
+- Next.js 15, React 19, TypeScript 5, Tailwind CSS 4
+- NextAuth v5, Drizzle ORM + PostgreSQL
+- Shadcn/ui, Radix UI, Framer Motion
+- Custom SSE (useSSEChat), OpenAI, DeepSeek
