@@ -13,6 +13,7 @@ import { LightningBoltIcon, FileTextIcon, DownloadIcon, CopyIcon, Share1Icon } f
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { createDebug } from "@/lib/debug";
 import type { Entity } from "@/types/entity";
+import { useTranslations } from "next-intl";
 
 const debug = createDebug('ChatMessage');
 
@@ -56,6 +57,7 @@ async function fetchEntities(content: string): Promise<Entity[]> {
 }
 
 export function ChatMessage({ message, isGenerating = false }: ChatMessageProps) {
+  const t = useTranslations("chat");
   const { user } = useAppContext();
   const isUser = message.role === "user";
 
@@ -159,11 +161,11 @@ export function ChatMessage({ message, isGenerating = false }: ChatMessageProps)
                 <TabsList className="mb-4">
                   <TabsTrigger value="reasoning">
                     <LightningBoltIcon className="mr-2" />
-                    推理过程
+                    {t("tab_thinking")}
                   </TabsTrigger>
                   <TabsTrigger value="result">
                     <FileTextIcon className="mr-2" />
-                    研究结果
+                    {t("tab_research")}
                   </TabsTrigger>
                 </TabsList>
 

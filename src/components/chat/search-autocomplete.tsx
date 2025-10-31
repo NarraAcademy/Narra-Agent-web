@@ -5,8 +5,9 @@ import { useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import useSWR from "swr";
 import { Input } from "@/components/ui/input";
-import { MagnifyingGlassIcon } from "@radix-ui/react-icons";
+import { MagnifyingGlassIcon, PersonIcon } from "@radix-ui/react-icons";
 import { cn } from "@/lib/utils";
+import { formatNumber } from "@/lib/format";
 import type {
   SearchResultItem,
   SearchProjectsResponse,
@@ -47,21 +48,56 @@ export function SearchAutocomplete() {
     const projects = projectsData?.data?.data?.projects || [];
 
     projects.forEach((project) => {
-      // 根据是否有symbol和price判断是token还是普通项目
-      const isToken = project.symbol && project.price;
+      // 根据是否有symbol判断是token还是普通项目
+      const hasSymbol = !!project.symbol;
 
-      results.push({
-        type: isToken ? 'token' : 'project',
-        id: isToken ? (project.symbol || project.name) : project.name,
-        name: project.name,
-        symbol: project.symbol,
-        logo: project.logo,
-        price: project.price,
-        market_cap: project.market_cap,
-        priceChange: null,
-        heat: project.heat,
-        tags: project.tags || [],
-      });
+      if (hasSymbol) {
+        // 有symbol的情况下，生成2个项：先Project后Token
+        // 1. Project项（显示followers）
+        results.push({
+          type: 'project',
+          id: project.name,
+          name: project.name,
+          symbol: null,
+          logo: project.logo,
+          price: null,
+          market_cap: project.market_cap,
+          priceChange: null,
+          heat: project.heat,
+          tags: project.tags || [],
+          followers: project.followers,
+        });
+
+        // 2. Token项（显示price）
+        results.push({
+          type: 'token',
+          id: project.symbol || project.name,
+          name: project.name,
+          symbol: project.symbol,
+          logo: project.logo,
+          price: project.price,
+          market_cap: project.market_cap,
+          priceChange: null,
+          heat: project.heat,
+          tags: project.tags || [],
+          followers: null,
+        });
+      } else {
+        // 没有symbol的情况下，只生成Project项（显示followers）
+        results.push({
+          type: 'project',
+          id: project.name,
+          name: project.name,
+          symbol: null,
+          logo: project.logo,
+          price: null,
+          market_cap: project.market_cap,
+          priceChange: null,
+          heat: project.heat,
+          tags: project.tags || [],
+          followers: project.followers,
+        });
+      }
     });
 
     // 最多返回4条
@@ -191,9 +227,9 @@ export function SearchAutocomplete() {
                 )}
               </div>
 
-              {/* 价格或热度信息 */}
+              {/* 价格或粉丝数信息 */}
               <div className="text-right shrink-0">
-                {result.price ? (
+                {result.type === 'token' && result.price ? (
                   <>
                     <p className="text-sm font-semibold text-foreground">
                       {formatPrice(result.price)}
@@ -211,9 +247,10 @@ export function SearchAutocomplete() {
                     )}
                   </>
                 ) : (
-                  <p className="text-xs text-muted-foreground">
-                    Heat: {(result as any).heat || 0}
-                  </p>
+                  <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                    <PersonIcon className="w-4 h-4" />
+                    <span>{formatNumber((result as any).followers || 0)}</span>
+                  </div>
                 )}
               </div>
             </div>

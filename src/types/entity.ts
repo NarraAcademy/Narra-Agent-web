@@ -320,4 +320,5 @@ export interface SearchResultItem {
   priceChange?: string | null; // 涨跌幅
   heat?: number; // 热度
   tags?: string[]; // 标签
+  followers?: number | null; // 粉丝数
 }

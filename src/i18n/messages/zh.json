@@ -151,6 +151,8 @@
     "error_send_failed": "发送消息失败，请重试",
     "error_no_response": "抱歉，我没有收到任何响应。",
     "error_generic": "抱歉，我遇到了一些问题，请稍后再试。",
+    "tab_thinking": "推理过程",
+    "tab_research": "研究结果",
     "preset_tabs": {
       "hot_topics": "热点话题",
       "market_news": "市场快讯"

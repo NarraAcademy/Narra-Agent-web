@@ -151,6 +151,8 @@
     "error_send_failed": "Failed to send message, please try again",
     "error_no_response": "Sorry, I didn't receive any response.",
     "error_generic": "Sorry, I encountered some issues. Please try again later.",
+    "tab_thinking": "Thinking",
+    "tab_research": "Research",
     "preset_tabs": {
       "hot_topics": "Hot Topics",
       "market_news": "Market News"
