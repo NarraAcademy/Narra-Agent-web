@@ -5,7 +5,7 @@
     "brand": {
       "title": "Narra Agent",
       "logo": {
-        "src": "/logo.svg",
+        "src": "/logo.png",
         "alt": "Narra Agent"
       },
       "url": "/"
@@ -475,7 +475,7 @@
       "title": "Narra Agent",
       "description": "您的下一代加密货币智能中心。AI驱动的研究、自动化执行和50+条链的实时洞察。",
       "logo": {
-        "src": "/logo.svg",
+        "src": "/logo.png",
         "alt": "Narra Agent"
       },
       "url": "/"

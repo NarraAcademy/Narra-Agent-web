@@ -12,7 +12,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import {
   MagnifyingGlassIcon,
@@ -96,12 +96,7 @@ export function ChatSidebar({
       {/* 顶部标题栏 */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-border">
         {!collapsed && (
-          <Link
-            href="/home"
-            className="text-lg font-semibold hover:text-primary transition-colors"
-          >
-            Narra Agent
-          </Link>
+          <Image width={32} height={38} className="w-[25px]" src="/logo.png" alt="logo" />
         )}
         <PinLeftIcon
           className={cn(
@@ -144,9 +139,7 @@ export function ChatSidebar({
             className="w-full flex items-center justify-start gap-2 px-3 py-2 rounded-lg cursor-pointer hover:bg-accent transition-colors"
           >
             <MagnifyingGlassIcon className="w-5 h-5 shrink-0" />
-            <span className="text-sm">
-              {t("search_placeholder")}
-            </span>
+            <span className="text-sm">{t("search_placeholder")}</span>
           </div>
         ) : (
           <div className="p-3 flex justify-center">
