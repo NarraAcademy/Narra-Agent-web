@@ -1,11 +1,13 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { useTranslations, useLocale } from "next-intl";
-import { useRouter, useParams } from "next/navigation";
+import { useTranslations } from "next-intl";
+import { useParams } from "next/navigation";
+import { useRouter } from "@/i18n/navigation";
 import { motion } from "framer-motion";
 import { useSSEChat } from "@/hooks/use-sse-chat";
-import { useChatContext, getPathPrefix } from "./chat-context";
+import { useChatStore } from "@/stores/chat-store";
+import type { Step } from "@/types/chat";
 import { ChatMessage } from "./chat-message";
 import { ChatInput } from "./chat-input";
 import { EmptyChatInput } from "./empty-chat-input";
@@ -21,15 +23,21 @@ export function ChatConversation() {
   const t = useTranslations("chat");
   const router = useRouter();
   const params = useParams();
-  const locale = useLocale();
+
+  // 使用 Zustand Store
   const {
-    currentMessages,
     conversations,
-    currentConversationId,
     createNewConversation,
     syncConversationFromUseChat,
     addMessage,
-  } = useChatContext();
+    getMessages,
+  } = useChatStore();
+
+  // 从 URL 读取当前对话 ID
+  const currentConversationId = (params?.id as string) || null;
+
+  // 获取当前对话的消息
+  const currentMessages = currentConversationId ? getMessages(currentConversationId) : [];
   const hasAutoSentRef = useRef<Set<string>>(new Set()); // 记录已自动发送的对话ID
   const prevConversationIdRef = useRef<string | null>(null); // 跟踪上一次的conversationId
 
@@ -67,7 +75,7 @@ export function ChatConversation() {
   };
 
   // 辅助函数: 获取消息的steps数据
-  const getMessageSteps = (message: typeof messages[0]): any[] => {
+  const getMessageSteps = (message: typeof messages[0]): Step[] => {
     return message.steps || [];
   };
 
@@ -169,8 +177,7 @@ export function ChatConversation() {
 
           syncConversationFromUseChat(
             params.id as string,
-            [...compatibleMessages, messageWithData] as any,
-            [] // AI SDK 5.0 不再有单独的 data 数组
+            [...compatibleMessages, messageWithData]
           );
         }
 
@@ -196,8 +203,7 @@ export function ChatConversation() {
     }
 
     if (conversationId) {
-      // 如果currentMessages为空,说明对话数据还没有加载,等待下次currentMessages更新后再次触发
-      // 注意:不要在这里更新ref,否则下次currentMessages更新时会被跳过
+      // 等待对话数据加载完成
       if (currentMessages.length === 0) {
         debug.log('conversationId存在但currentMessages为空,等待数据加载');
         return;
@@ -230,7 +236,7 @@ export function ChatConversation() {
         const useDeepThinking = storedValue ? JSON.parse(storedValue) : false;
         debug.log('自动发送使用 useDeepThinking', { key: storageKey, value: useDeepThinking });
 
-        // 清除localStorage中的临时数据
+        // 清除 pending 标记
         localStorage.removeItem(storageKey);
 
         // 使用自定义SSE hook发送消息
@@ -280,12 +286,11 @@ export function ChatConversation() {
       debug.log('保存 useDeepThinking 到 localStorage', { key: storageKey, value: useDeepThinking });
 
       // 添加用户消息到localStorage
-      addMessage({ role: "user", content: message }, newConversationId);
+      addMessage(newConversationId, { role: "user", content: message, steps: [] });
       debug.log('已添加用户消息到localStorage');
 
       // 立即跳转到新对话页面（useEffect会自动检测并发送）
-      const pathPrefix = getPathPrefix(locale);
-      const targetUrl = `${pathPrefix}/chat/${newConversationId}`;
+      const targetUrl = `/chat/${newConversationId}`;
       debug.log('立即跳转', targetUrl);
       router.push(targetUrl);
 

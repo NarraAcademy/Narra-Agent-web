@@ -1,8 +1,9 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { useTranslations, useLocale } from "next-intl";
-import { useChatContext } from "./chat-context";
+import { useTranslations } from "next-intl";
+import { useRouter } from "@/i18n/navigation";
+import { useChatStore } from "@/stores/chat-store";
 import {
   Dialog,
   DialogContent,
@@ -41,8 +42,8 @@ interface ConversationGroup {
 export function ChatSearchDialog({ open, onOpenChange }: ChatSearchDialogProps) {
   const t = useTranslations("chat.search_dialog");
   const tChat = useTranslations("chat");
-  const locale = useLocale();
-  const { conversations, setCurrentConversation, createConversation } = useChatContext();
+  const router = useRouter();
+  const { conversations, createNewConversation } = useChatStore();
   const [searchQuery, setSearchQuery] = useState("");
 
   // 获取日期分组
@@ -115,14 +116,14 @@ export function ChatSearchDialog({ open, onOpenChange }: ChatSearchDialogProps) 
 
   // 处理对话点击
   const handleConversationClick = (id: string) => {
-    setCurrentConversation(id);
+    router.push(`/chat/${id}`);
     onOpenChange(false);
     setSearchQuery("");
   };
 
   // 处理新建对话
   const handleNewChat = () => {
-    createConversation();
+    router.push('/chat');
     onOpenChange(false);
     setSearchQuery("");
   };

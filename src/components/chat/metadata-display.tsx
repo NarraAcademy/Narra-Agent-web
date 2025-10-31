@@ -1,6 +1,6 @@
 "use client";
 
-import { Message } from "./chat-context";
+import type { Message } from "@/types/chat";
 
 interface MetadataDisplayProps {
   metadata: Message["metadata"];

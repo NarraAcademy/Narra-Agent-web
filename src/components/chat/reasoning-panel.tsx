@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Message } from "./chat-context";
+import type { Message, Step } from "@/types/chat";
 import { WorkflowStepCard } from "./workflow-step-card";
 import { MetadataDisplay } from "./metadata-display";
 import { ChevronDownIcon, ChevronUpIcon, SymbolIcon } from "@radix-ui/react-icons";

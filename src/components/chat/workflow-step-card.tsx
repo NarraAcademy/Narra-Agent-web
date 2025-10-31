@@ -2,10 +2,9 @@
 
 import React from "react";
 import { motion } from "framer-motion";
-import { WorkflowStep, AgentName } from "./chat-context";
+import type { Step as WorkflowStep } from "@/types/chat";
 import { ReasoningItem } from "./reasoning-item";
 import {
-  ClockIcon,
   LightningBoltIcon,
   CheckCircledIcon,
   CrossCircledIcon,
@@ -27,6 +26,8 @@ type IconConfig = {
   label: string;
   color: string;
 };
+
+type AgentName = "Coordinator" | "CoinGecko" | "Project" | "News" | "Synthesizer" | "System";
 
 // 类型守卫：检查是否为有效的 Agent 名称
 const isValidAgent = (agent: string | undefined): agent is AgentName => {
@@ -70,11 +71,6 @@ const agentConfig: Record<AgentName, IconConfig> = {
 
 // 状态指示器配置（作为fallback）
 const statusConfig: Record<NonNullable<WorkflowStep["status"]>, IconConfig> = {
-  pending: {
-    icon: ClockIcon,
-    label: "等待中",
-    color: "text-yellow-600 dark:text-yellow-400",
-  },
   running: {
     icon: LightningBoltIcon,
     label: "运行中",
@@ -85,9 +81,9 @@ const statusConfig: Record<NonNullable<WorkflowStep["status"]>, IconConfig> = {
     label: "已完成",
     color: "text-green-600 dark:text-green-400",
   },
-  error: {
+  failed: {
     icon: CrossCircledIcon,
-    label: "错误",
+    label: "失败",
     color: "text-red-600 dark:text-red-400",
   },
 };
@@ -131,12 +127,12 @@ const WorkflowStepCardComponent = ({ step }: WorkflowStepCardProps) => {
 
         {/* Reasoning count badge */}
         <div className="shrink-0 px-2 py-1 rounded-md bg-muted/30 text-xs font-medium text-muted-foreground">
-          {step.reasoning.length} {step.reasoning.length === 1 ? 'item' : 'items'}
+          {step.items.length} {step.items.length === 1 ? 'item' : 'items'}
         </div>
       </div>
 
       {/* Reasoning list - Sequential fade-in animation */}
-      {step.reasoning.length > 0 && (
+      {step.items.length > 0 && (
         <motion.div
           className="px-3 pb-3 space-y-1.5"
           initial="hidden"
@@ -150,7 +146,7 @@ const WorkflowStepCardComponent = ({ step }: WorkflowStepCardProps) => {
             }
           }}
         >
-          {step.reasoning.map((reasoning) => (
+          {step.items.map((reasoning) => (
             <motion.div
               key={reasoning.id}
               variants={{
@@ -172,7 +168,7 @@ const WorkflowStepCardComponent = ({ step }: WorkflowStepCardProps) => {
       )}
 
       {/* Empty state */}
-      {step.reasoning.length === 0 && (
+      {step.items.length === 0 && (
         <div className="px-3 pb-3 text-xs text-muted-foreground">
           No reasoning records
         </div>

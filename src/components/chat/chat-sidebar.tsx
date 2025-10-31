@@ -1,7 +1,9 @@
 "use client";
 
 import { useTranslations, useLocale } from "next-intl";
-import { useChatContext } from "./chat-context";
+import { useParams } from "next/navigation";
+import { useRouter } from "@/i18n/navigation";
+import { useChatStore } from "@/stores/chat-store";
 import { ChatUserSection } from "./chat-user-section";
 import { ChatSearchDialog } from "./chat-search-dialog";
 import { Input } from "@/components/ui/input";
@@ -13,7 +15,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
 import {
   MagnifyingGlassIcon,
   ChatBubbleIcon,
@@ -41,18 +42,26 @@ export function ChatSidebar({
   const t = useTranslations("chat");
   const locale = useLocale();
   const router = useRouter();
+  const params = useParams();
   const {
     conversations,
-    currentConversationId,
-    createConversation,
     deleteConversation,
-    setCurrentConversation,
     renameConversation,
-  } = useChatContext();
+  } = useChatStore();
+
+  const currentConversationId = (params?.id as string) || null;
 
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editTitle, setEditTitle] = useState("");
   const [searchDialogOpen, setSearchDialogOpen] = useState(false);
+
+  const handleNewChat = () => {
+    router.push('/chat');
+  };
+
+  const handleSelectConversation = (id: string) => {
+    router.push(`/chat/${id}`);
+  };
 
   const handleRename = (id: string) => {
     const trimmedTitle = editTitle.trim();
@@ -115,7 +124,7 @@ export function ChatSidebar({
         {/* 新建对话按钮 */}
         {!collapsed ? (
           <div
-            onClick={createConversation}
+            onClick={handleNewChat}
             className="w-full flex items-center justify-start gap-2 px-3 py-2 rounded-lg cursor-pointer hover:bg-accent transition-colors"
           >
             <PlusIcon className="w-5 h-5 shrink-0" />
@@ -124,7 +133,7 @@ export function ChatSidebar({
         ) : (
           <div className="p-3 flex justify-center">
             <PlusIcon
-              onClick={createConversation}
+              onClick={handleNewChat}
               className="w-5 h-5 cursor-pointer shrink-0 hover:text-primary transition-colors"
               aria-label="New chat"
               role="button"
@@ -155,7 +164,7 @@ export function ChatSidebar({
         {/* 加密数据中心按钮 */}
         {!collapsed ? (
           <div
-            onClick={() => router.push(`/${locale}/analytics`)}
+            onClick={() => router.push('/analytics')}
             className="w-full flex items-center justify-start gap-2 px-3 py-2 rounded-lg cursor-pointer hover:bg-accent transition-colors"
           >
             <BarChartIcon className="w-5 h-5 shrink-0" />
@@ -164,7 +173,7 @@ export function ChatSidebar({
         ) : (
           <div className="p-3 flex justify-center">
             <BarChartIcon
-              onClick={() => router.push(`/${locale}/analytics`)}
+              onClick={() => router.push('/analytics')}
               className="w-5 h-5 cursor-pointer shrink-0 hover:text-primary transition-colors"
               aria-label="Analytics"
               role="button"
@@ -189,7 +198,7 @@ export function ChatSidebar({
                     "group rounded-lg cursor-pointer hover:bg-accent transition-colors p-2",
                     currentConversationId === conv.id && "bg-accent"
                   )}
-                  onClick={() => setCurrentConversation(conv.id)}
+                  onClick={() => handleSelectConversation(conv.id)}
                 >
                   {editingId === conv.id ? (
                     <Input

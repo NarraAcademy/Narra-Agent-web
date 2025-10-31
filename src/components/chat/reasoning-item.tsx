@@ -1,10 +1,10 @@
 "use client";
 
 import React from "react";
-import { ReasoningStep } from "./chat-context";
+import type { StepItem } from "@/types/chat";
 
 interface ReasoningItemProps {
-  reasoning: ReasoningStep;
+  reasoning: StepItem;
 }
 
 // Format timestamp to readable format

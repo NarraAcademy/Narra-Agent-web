@@ -1,6 +1,5 @@
 "use client";
 
-import { ChatProvider } from "./chat-context";
 import { ChatSidebar } from "./chat-sidebar";
 import { ChatConversation } from "./chat-conversation";
 import { useState } from "react";
@@ -13,8 +12,7 @@ export function ChatLayout() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   return (
-    <ChatProvider>
-      <div className="flex h-screen overflow-hidden">
+    <div className="flex h-screen overflow-hidden">
         {/* 移动端侧边栏遮罩 */}
         {sidebarOpen && (
           <div
@@ -61,6 +59,5 @@ export function ChatLayout() {
           <ChatConversation />
         </div>
       </div>
-    </ChatProvider>
   );
 }
