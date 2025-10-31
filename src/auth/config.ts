@@ -117,6 +117,9 @@ export const providerMap = providers
 
 export const authOptions: NextAuthConfig = {
   providers,
+  session: {
+    strategy: "jwt",
+  },
   pages: {
     signIn: "/auth/signin",
   },
