@@ -332,7 +332,7 @@ export function ChatConversation() {
                   steps: persistedMessage?.steps || msg.steps || [],
                   metadata: persistedMessage?.metadata || msg.metadata,
                   entities: persistedMessage?.entities || msg.entities || [],
-                  timestamp: Date.now(),
+                  createdAt: persistedMessage?.createdAt || Date.now(),
                 };
 
                 const isLastMessage = index === messages.length - 1;

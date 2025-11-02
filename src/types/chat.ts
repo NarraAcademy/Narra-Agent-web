@@ -64,6 +64,7 @@ export interface StepItem {
  * 消息元数据
  */
 export interface MessageMetadata {
+  useDeepThinking?: boolean;
   tools_used?: string[];
   agents_used?: string[];
 }

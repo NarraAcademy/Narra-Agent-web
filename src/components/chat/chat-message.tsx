@@ -96,6 +96,7 @@ export function ChatMessage({ message, isGenerating = false }: ChatMessageProps)
 
   // 自动切换逻辑：当报告开始生成时，自动切换到"研究结果"Tab
   useEffect(() => {
+    console.log(message)
     if (!isUser && isGenerating) {
       const currentLength = message.content?.length || 0;
       const prevLength = prevContentLengthRef.current;
