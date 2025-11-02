@@ -22,10 +22,9 @@ interface ChatStore {
   isLoading: boolean;
   generatingMessageId: string | null;
 
-  // 替代 ref 的状态管理
-  activeConversationId: string | null;  // 替代 prevConversationIdRef
-  autoSentConversations: Set<string>;   // 替代 hasAutoSentRef
-  processedMessages: Set<string>;       // 替代 hasProcessedMessageRef
+  // 状态管理
+  activeConversationId: string | null;  // 当前激活的对话ID
+  processedMessages: Set<string>;       // 已处理的消息ID（用于NER去重）
 
   // Actions
   createNewConversation: () => string;
@@ -42,11 +41,9 @@ interface ChatStore {
   setIsLoading: (loading: boolean) => void;
   setGeneratingMessageId: (id: string | null) => void;
 
-  // 新增：状态管理方法
+  // 状态管理方法
   setActiveConversationId: (id: string | null) => void;
-  markConversationAsSent: (id: string) => void;
   markMessageAsProcessed: (id: string) => void;
-  isConversationAutoSent: (id: string) => boolean;
   isMessageProcessed: (id: string) => boolean;
 
   // Computed getters
@@ -74,9 +71,8 @@ export const useChatStore = create<ChatStore>()(
       isLoading: false,
       generatingMessageId: null,
 
-      // 替代 ref 的状态
+      // 状态
       activeConversationId: null,
-      autoSentConversations: new Set<string>(),
       processedMessages: new Set<string>(),
 
       createNewConversation: () => {
@@ -174,22 +170,42 @@ export const useChatStore = create<ChatStore>()(
           createdAt: msg.createdAt?.getTime() || Date.now(),
         }));
 
-        set((state) => ({
-          conversations: state.conversations.map((c) => {
-            if (c.id === conversationId) {
-              const firstUserMsg = convertedMessages.find(m => m.role === "user");
-              const title = generateTitle(c.title, firstUserMsg?.content);
+        // 检查对话是否存在
+        const existingConv = get().conversations.find(c => c.id === conversationId);
 
-              return {
-                ...c,
-                messages: convertedMessages,
-                title,
-                updatedAt: Date.now(),
-              };
-            }
-            return c;
-          }),
-        }));
+        if (!existingConv) {
+          // 对话不存在，创建新对话
+          const firstUserMsg = convertedMessages.find(m => m.role === "user");
+          const newConv: Conversation = {
+            id: conversationId,
+            title: firstUserMsg ? generateTitle("新对话", firstUserMsg.content) : "新对话",
+            messages: convertedMessages,
+            createdAt: Date.now(),
+            updatedAt: Date.now(),
+          };
+
+          set((state) => ({
+            conversations: [newConv, ...state.conversations],
+          }));
+        } else {
+          // 对话存在，更新消息
+          set((state) => ({
+            conversations: state.conversations.map((c) => {
+              if (c.id === conversationId) {
+                const firstUserMsg = convertedMessages.find(m => m.role === "user");
+                const title = generateTitle(c.title, firstUserMsg?.content);
+
+                return {
+                  ...c,
+                  messages: convertedMessages,
+                  title,
+                  updatedAt: Date.now(),
+                };
+              }
+              return c;
+            }),
+          }));
+        }
       },
 
       setIsLoading: (loading: boolean) => {
@@ -200,25 +216,15 @@ export const useChatStore = create<ChatStore>()(
         set({ generatingMessageId: id });
       },
 
-      // 新增：状态管理方法
+      // 状态管理方法
       setActiveConversationId: (id: string | null) => {
         set({ activeConversationId: id });
-      },
-
-      markConversationAsSent: (id: string) => {
-        set(state => ({
-          autoSentConversations: new Set(state.autoSentConversations).add(id)
-        }));
       },
 
       markMessageAsProcessed: (id: string) => {
         set(state => ({
           processedMessages: new Set(state.processedMessages).add(id)
         }));
-      },
-
-      isConversationAutoSent: (id: string) => {
-        return get().autoSentConversations.has(id);
       },
 
       isMessageProcessed: (id: string) => {

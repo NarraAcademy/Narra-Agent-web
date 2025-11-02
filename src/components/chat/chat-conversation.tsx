@@ -22,7 +22,7 @@ export function ChatConversation() {
   const router = useRouter();
   const params = useParams();
 
-  // ✅ 使用 Zustand Store - 移除所有ref
+  // ✅ 使用 Zustand Store
   const {
     conversations,
     createNewConversation,
@@ -32,8 +32,6 @@ export function ChatConversation() {
     updateMessageField,
     activeConversationId,
     setActiveConversationId,
-    isConversationAutoSent,
-    markConversationAsSent,
     isMessageProcessed,
     markMessageAsProcessed,
   } = useChatStore();
@@ -79,7 +77,6 @@ export function ChatConversation() {
     const content = lastMessage.content || '';
     if (content.length === 0) return; // 避免覆盖历史数据
 
-    debug.log('保存AI消息到localStorage', lastMessage.id);
     markMessageAsProcessed(lastMessage.id);
 
     const useChatMessages = messages.map((msg: any) => ({
@@ -112,7 +109,6 @@ export function ChatConversation() {
   useEffect(() => {
     if (activeConversationId === conversationId) return;
 
-    debug.log('对话切换', { from: activeConversationId, to: conversationId });
     setActiveConversationId(conversationId);
 
     if (!conversationId) {
@@ -122,74 +118,56 @@ export function ChatConversation() {
     }
 
     if (currentMessages.length === 0) {
-      debug.log('等待对话数据加载');
       return;
     }
 
-    // 检查是否需要自动发送
+    // ✅ 如果只有1条user消息，说明是刚发送的新对话，自动发送
     const hasOnlyOneUserMessage = currentMessages.length === 1 && currentMessages[0].role === "user";
-    const notSentYet = !isConversationAutoSent(conversationId);
+    if (hasOnlyOneUserMessage) {
+      const userMessage = currentMessages[0];
+      const useDeepThinking = userMessage.metadata?.useDeepThinking || false;
 
-    if (hasOnlyOneUserMessage && notSentYet && !isLoading) {
-      debug.log('自动发送新对话');
-      markConversationAsSent(conversationId);
-
-      const storageKey = `pending_useDeepThinking_${conversationId}`;
-      const useDeepThinking = JSON.parse(localStorage.getItem(storageKey) || 'false');
-      localStorage.removeItem(storageKey);
-
-      sendMessage(currentMessages[0].content, useDeepThinking);
-    } else {
-      // 同步localStorage到useChat
-      debug.log('同步消息', currentMessages.length);
-      const useChatMessages = currentMessages.map((msg) => ({
-        id: msg.id,
-        role: msg.role as "user" | "assistant",
-        content: msg.content,
-        steps: msg.steps,
-        metadata: msg.metadata,
-      }));
-      setMessages(useChatMessages as any);
+      sendMessage(userMessage.content, useDeepThinking);
+      return;
     }
-  }, [conversationId, activeConversationId, currentMessages.length, isLoading]);
+
+    // ✅ 同步store到useChat（仅在切换到已有对话时执行）
+    const useChatMessages = currentMessages.map((msg) => ({
+      id: msg.id,
+      role: msg.role as "user" | "assistant",
+      content: msg.content,
+      steps: msg.steps,
+      metadata: msg.metadata,
+    }));
+    setMessages(useChatMessages as any);
+  }, [conversationId, activeConversationId, currentMessages.length]);
 
   const currentConversation = conversations.find(c => c.id === conversationId);
 
   const handleSend = async (message: string, useDeepThinking: boolean) => {
-    debug.log('开始发送消息', `${message.slice(0, 50)} | useDeepThinking: ${useDeepThinking}`);
-
-    // 场景1：在 /chat 页面发送消息（新建对话）
+    // ✅ 场景1：在 /chat 页面发送消息（新建对话）
     if (!params?.id) {
-      // 创建新对话
       const newConversationId = createNewConversation();
-      debug.log('创建新对话', newConversationId);
 
-      // 保存useDeepThinking到localStorage,键名包含conversationId
-      const storageKey = `pending_useDeepThinking_${newConversationId}`;
-      localStorage.setItem(storageKey, JSON.stringify(useDeepThinking));
-      debug.log('保存 useDeepThinking 到 localStorage', { key: storageKey, value: useDeepThinking });
+      // 添加用户消息到 store，同时保存 useDeepThinking
+      addMessage(newConversationId, {
+        role: "user",
+        content: message,
+        steps: [],
+        metadata: { useDeepThinking } // ✅ 保存到 metadata
+      });
 
-      // 添加用户消息到localStorage
-      addMessage(newConversationId, { role: "user", content: message, steps: [] });
-      debug.log('已添加用户消息到localStorage');
-
-      // 立即跳转到新对话页面（useEffect会自动检测并发送）
-      const targetUrl = `/chat/${newConversationId}`;
-      debug.log('立即跳转', targetUrl);
-      router.push(targetUrl);
-
+      // 跳转到新对话页面（useEffect会自动检测并发送）
+      router.push(`/chat/${newConversationId}`);
       return;
     }
 
-    // 场景2：在 /chat/xxx 页面发送消息（现有对话）
-    debug.log('使用现有对话', params.id);
-
-    // 使用自定义SSE hook发送消息
+    // ✅ 场景2：在 /chat/[id] 页面发送消息（现有对话）
     sendMessage(message, useDeepThinking);
   };
 
-  // 判断是否为空对话
-  const isEmpty = messages.length === 0;
+  // ✅ 判断是否为空对话（使用 currentMessages 而非 messages，避免跳转时状态重置）
+  const isEmpty = currentMessages.length === 0;
 
   return (
     <div className="flex flex-col h-full bg-background relative overflow-hidden">

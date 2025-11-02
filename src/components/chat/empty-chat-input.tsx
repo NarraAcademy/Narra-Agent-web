@@ -21,11 +21,6 @@ export function EmptyChatInput({ onSend, disabled, value = "", onChange }: Empty
   const handleSend = () => {
     if (!value.trim() || disabled) return;
     const useDeepThinking = selectedMode === "deep";
-    console.log('[EmptyChatInput] handleSend 调用', {
-      selectedMode,
-      useDeepThinking,
-      message: value.trim().slice(0, 50)
-    });
     onSend(value.trim(), useDeepThinking);
   };
 
@@ -73,7 +68,6 @@ export function EmptyChatInput({ onSend, disabled, value = "", onChange }: Empty
                 tabIndex={isDisabled ? -1 : 0}
                 onClick={() => {
                   if (!isDisabled) {
-                    console.log('[EmptyChatInput] 模式切换', mode.key);
                     setSelectedMode(mode.key);
                   }
                 }}
