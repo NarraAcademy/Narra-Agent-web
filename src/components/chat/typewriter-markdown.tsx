@@ -1,12 +1,14 @@
 "use client";
 
-import { useEffect, useState, useRef, ReactNode, useMemo } from "react";
+import React, { useEffect, useState, useRef, useMemo } from "react";
 import { Streamdown } from "streamdown";
 import remarkGfm from "remark-gfm";
 import rehypeRaw from "rehype-raw";
 import { cn } from "@/lib/utils";
 import { createDebug } from "@/lib/debug";
 import { EntityHighlight } from "./entity-highlight";
+import remarkEntityHighlight from "@/lib/remark-entity-highlight";
+import type { Entity as NEREntity } from "@/lib/remark-entity-highlight";
 
 const debug = createDebug('TypeWriterMarkdown');
 
@@ -30,79 +32,27 @@ interface TypeWriterMarkdownProps {
 }
 
 /**
- * 查找文本中所有代码块的位置范围（包括行内代码和代码块）
+ * 将后端 NER 格式转换为 remark plugin 需要的格式
+ * 后端格式: { text, type, start, end }
+ * Plugin格式: { type, name, mentions: [{ text }] }
  */
-function findCodeBlockRanges(text: string): Array<{start: number, end: number}> {
-  const ranges: Array<{start: number, end: number}> = [];
+function convertNEREntitiesToPluginFormat(entities?: Entity[]): NEREntity[] {
+  if (!entities || entities.length === 0) return [];
 
-  // 查找三个反引号的代码块 ```code```
-  const blockRegex = /```[\s\S]*?```/g;
-  let match;
-  while ((match = blockRegex.exec(text)) !== null) {
-    ranges.push({ start: match.index, end: match.index + match[0].length });
-  }
-
-  // 查找行内代码块 `code`
-  const inlineRegex = /`[^`]+`/g;
-  while ((match = inlineRegex.exec(text)) !== null) {
-    ranges.push({ start: match.index, end: match.index + match[0].length });
-  }
-
-  return ranges;
-}
-
-/**
- * 检查实体是否在代码块内
- */
-function isEntityInCodeBlock(entity: Entity, codeRanges: Array<{start: number, end: number}>): boolean {
-  return codeRanges.some(range =>
-    entity.start >= range.start && entity.end <= range.end
-  );
-}
-
-/**
- * 处理实体高亮：将纯文本content根据entities信息包裹高亮组件
- * 使用特殊的HTML标签标记实体，利用rehype-raw解析
- * 过滤掉代码块内的实体，保持代码块的语义完整性
- */
-function processEntitiesInText(text: string, entities?: Entity[]): string {
-  if (!entities || entities.length === 0) {
-    return text;
-  }
-
-  // 找出所有代码块的位置
-  const codeRanges = findCodeBlockRanges(text);
-
-  // 过滤掉在代码块内的实体
-  const filteredEntities = entities.filter(entity => !isEntityInCodeBlock(entity, codeRanges));
-
-  if (filteredEntities.length === 0) {
-    return text;
-  }
-
-  // 按start排序，确保从前往后处理（优先级从前到后）
-  const sortedEntities = [...filteredEntities].sort((a, b) => a.start - b.start);
-
-  let result = "";
-  let lastIndex = 0;
-
-  for (const entity of sortedEntities) {
-    // 添加实体之前的文本
-    const beforeText = text.slice(lastIndex, entity.start);
-    result += beforeText;
-
-    // 添加实体文本 - 使用HTML标签
-    const entityText = text.slice(entity.start, entity.end);
-    // 使用data属性传递实体信息
-    result += `<mark data-entity-type="${entity.type}" data-entity-name="${entity.text}">${entityText}</mark>`;
-
-    lastIndex = entity.end;
-  }
-
-  // 添加剩余文本
-  result += text.slice(lastIndex);
-
-  return result;
+  // 简单去重：同类型+同文本的实体只保留一个
+  const seen = new Set<string>();
+  return entities
+    .filter(e => {
+      const key = `${e.type}-${e.text}`;
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    })
+    .map(e => ({
+      type: e.type,
+      name: e.text,
+      mentions: [{ text: e.text }]
+    }));
 }
 
 export function TypeWriterMarkdown({
@@ -197,56 +147,48 @@ export function TypeWriterMarkdown({
     return () => clearTimeout(timer);
   }, [isTyping, speed, displayedContent]);
 
-  // 处理实体高亮
-  // 只在打字效果完成后才处理实体,确保NER的start/end索引能正确匹配完整内容
-  const shouldProcessEntities = !isTyping && entities && entities.length > 0;
-
-  if (shouldProcessEntities) {
-    debug.log('🎯 开始处理实体高亮', {
-      entitiesCount: entities?.length,
-      contentLength: displayedContent.length,
-      entities: entities?.map(e => ({ text: e.text, type: e.type, start: e.start, end: e.end }))
-    });
-  }
-
-  // 处理实体 - 在markdown文本中插入HTML标签
-  const contentWithEntities = useMemo(() => {
-    if (!shouldProcessEntities) {
-      return displayedContent;
+  // 转换 entities 格式用于 remark plugin
+  const pluginEntities = useMemo(() => {
+    const converted = convertNEREntitiesToPluginFormat(entities);
+    if (converted.length > 0) {
+      debug.log('🔄 实体格式转换完成', {
+        原始数量: entities?.length,
+        转换后数量: converted.length,
+        示例: converted.slice(0, 3)
+      });
     }
-    return processEntitiesInText(displayedContent, entities);
-  }, [displayedContent, shouldProcessEntities, entities]);
+    return converted;
+  }, [entities]);
 
-  // 自定义markdown组件 - 将<mark>标签渲染为EntityHighlight组件
+  // 自定义 markdown 组件 - 映射 <entity-highlight> HTML 标签到 EntityHighlight 组件
   const customComponents = useMemo(() => {
     return {
       ...components,
-      mark: ({ node, ...props }: any) => {
-        const entityType = props['data-entity-type'] as EntityCategory;
-        const entityName = props['data-entity-name'] as string;
+      // 映射 rehypeRaw 解析的 entity-highlight HTML 元素到 React 组件
+      'entity-highlight': ({ node, children, ...props }: any) => {
+        const type = props['data-type'] as EntityCategory;
+        const name = props['data-name'];
 
-        if (entityType && entityName) {
-          return (
-            <EntityHighlight entity={entityName} type={entityType}>
-              {props.children}
-            </EntityHighlight>
-          );
-        }
-
-        // 默认的mark标签渲染
-        return <mark {...props} />;
-      }
+        return (
+          <EntityHighlight entity={name} type={type}>
+            {children}
+          </EntityHighlight>
+        );
+      },
     };
   }, [components]);
 
   return (
     <div className={cn("prose prose-slate dark:prose-invert max-w-none", className)}>
       <Streamdown
-        remarkPlugins={[remarkGfm]}
-        rehypePlugins={[rehypeRaw]}
+        remarkPlugins={[
+          remarkGfm,
+          [remarkEntityHighlight, pluginEntities] // 添加实体高亮 plugin
+        ]}
+        rehypePlugins={[rehypeRaw]} // 解析 plugin 注入的 HTML 标签
         components={customComponents}
       >
-        {contentWithEntities}
+        {displayedContent}
       </Streamdown>
     </div>
   );

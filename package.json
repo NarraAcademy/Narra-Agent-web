@@ -112,6 +112,7 @@
     "swr": "^2.3.6",
     "tailwind-merge": "^2.6.0",
     "tailwindcss-animate": "^1.0.7",
+    "unist-util-visit": "^5.0.0",
     "use-stick-to-bottom": "^1.1.1",
     "uuid": "^11.0.3",
     "vaul": "^1.1.2",

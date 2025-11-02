@@ -22,6 +22,11 @@ interface ChatStore {
   isLoading: boolean;
   generatingMessageId: string | null;
 
+  // 替代 ref 的状态管理
+  activeConversationId: string | null;  // 替代 prevConversationIdRef
+  autoSentConversations: Set<string>;   // 替代 hasAutoSentRef
+  processedMessages: Set<string>;       // 替代 hasProcessedMessageRef
+
   // Actions
   createNewConversation: () => string;
   deleteConversation: (id: string) => void;
@@ -37,12 +42,20 @@ interface ChatStore {
   setIsLoading: (loading: boolean) => void;
   setGeneratingMessageId: (id: string | null) => void;
 
+  // 新增：状态管理方法
+  setActiveConversationId: (id: string | null) => void;
+  markConversationAsSent: (id: string) => void;
+  markMessageAsProcessed: (id: string) => void;
+  isConversationAutoSent: (id: string) => boolean;
+  isMessageProcessed: (id: string) => boolean;
+
   // Computed getters
   getConversationById: (id: string) => Conversation | undefined;
   getMessages: (conversationId: string) => Message[];
 }
 
-const STORAGE_KEY = "narra-agent-conversations";
+const STORAGE_VERSION = 1;
+const STORAGE_KEY = `narra-agent-conversations-v${STORAGE_VERSION}`;
 
 /**
  * 生成对话标题：默认标题"新对话"时使用用户首条消息前20字符
@@ -60,6 +73,11 @@ export const useChatStore = create<ChatStore>()(
       conversations: [],
       isLoading: false,
       generatingMessageId: null,
+
+      // 替代 ref 的状态
+      activeConversationId: null,
+      autoSentConversations: new Set<string>(),
+      processedMessages: new Set<string>(),
 
       createNewConversation: () => {
         const id = Date.now().toString();
@@ -180,6 +198,31 @@ export const useChatStore = create<ChatStore>()(
 
       setGeneratingMessageId: (id: string | null) => {
         set({ generatingMessageId: id });
+      },
+
+      // 新增：状态管理方法
+      setActiveConversationId: (id: string | null) => {
+        set({ activeConversationId: id });
+      },
+
+      markConversationAsSent: (id: string) => {
+        set(state => ({
+          autoSentConversations: new Set(state.autoSentConversations).add(id)
+        }));
+      },
+
+      markMessageAsProcessed: (id: string) => {
+        set(state => ({
+          processedMessages: new Set(state.processedMessages).add(id)
+        }));
+      },
+
+      isConversationAutoSent: (id: string) => {
+        return get().autoSentConversations.has(id);
+      },
+
+      isMessageProcessed: (id: string) => {
+        return get().processedMessages.has(id);
       },
 
       // Computed getters

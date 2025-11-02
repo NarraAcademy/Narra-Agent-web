@@ -1,18 +1,16 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useParams } from "next/navigation";
 import { useRouter } from "@/i18n/navigation";
 import { motion } from "framer-motion";
 import { useSSEChat } from "@/hooks/use-sse-chat";
 import { useChatStore } from "@/stores/chat-store";
-import type { Step } from "@/types/chat";
-import { ChatMessage } from "./chat-message";
+import { ChatMessage, fetchEntities } from "./chat-message";
 import { ChatInput } from "./chat-input";
 import { EmptyChatInput } from "./empty-chat-input";
 import { ReloadIcon } from "@radix-ui/react-icons";
-import { ReasoningPanel } from "./reasoning-panel";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { StickToBottom } from "use-stick-to-bottom";
 import { createDebug } from "@/lib/debug";
@@ -24,22 +22,25 @@ export function ChatConversation() {
   const router = useRouter();
   const params = useParams();
 
-  // 使用 Zustand Store
+  // ✅ 使用 Zustand Store - 移除所有ref
   const {
     conversations,
     createNewConversation,
     syncConversationFromUseChat,
     addMessage,
     getMessages,
+    updateMessageField,
+    activeConversationId,
+    setActiveConversationId,
+    isConversationAutoSent,
+    markConversationAsSent,
+    isMessageProcessed,
+    markMessageAsProcessed,
   } = useChatStore();
 
   // 从 URL 读取当前对话 ID
-  const currentConversationId = (params?.id as string) || null;
-
-  // 获取当前对话的消息
-  const currentMessages = currentConversationId ? getMessages(currentConversationId) : [];
-  const hasAutoSentRef = useRef<Set<string>>(new Set()); // 记录已自动发送的对话ID
-  const prevConversationIdRef = useRef<string | null>(null); // 跟踪上一次的conversationId
+  const conversationId = (params?.id as string) || null;
+  const currentMessages = conversationId ? getMessages(conversationId) : [];
 
   // 本地输入框状态 (AI SDK 5.0 不再提供 input/handleInputChange)
   const [input, setInput] = useState("");
@@ -50,7 +51,6 @@ export function ChatConversation() {
     sendMessage,
     status,
     setMessages,
-    currentSteps,
   } = useSSEChat({
     id: (params?.id as string) || undefined,
     onFinish: (message) => {
@@ -69,207 +69,91 @@ export function ChatConversation() {
     setInput(e.target.value);
   };
 
-  // 辅助函数: 获取消息文本内容
-  const getMessageContent = (message: typeof messages[0]): string => {
-    return message.content || '';
-  };
-
-  // 辅助函数: 获取消息的steps数据
-  const getMessageSteps = (message: typeof messages[0]): Step[] => {
-    return message.steps || [];
-  };
-
-  // 调试日志：监控messages数组变化
-  const prevMessagesRef = useRef<typeof messages>([]);
+  // ✅ 简化：当AI消息完成时保存到localStorage
   useEffect(() => {
-    if (messages.length > 0) {
-      const lastMessage = messages[messages.length - 1];
-      const prevLastMessage = prevMessagesRef.current[prevMessagesRef.current.length - 1];
+    if (!conversationId || isLoading || messages.length === 0) return;
 
-      if (lastMessage?.role === "assistant") {
-        const lastContent = getMessageContent(lastMessage);
-        const prevContent = prevLastMessage ? getMessageContent(prevLastMessage) : '';
-        const contentChanged = lastContent !== prevContent;
+    const lastMessage = messages[messages.length - 1];
+    if (lastMessage.role !== "assistant" || isMessageProcessed(lastMessage.id)) return;
 
-        if (contentChanged) {
-          debug.log('📝 Messages数组更新 - assistant消息内容变化', {
-            时间戳: Date.now(),
-            totalMessages: messages.length,
-            lastMessageId: lastMessage.id,
-            contentLength: lastContent.length,
-            增量: lastContent.length - prevContent.length,
-            isLoading: isLoading,
-            contentPreview: lastContent.slice(0, 100)
-          });
-        }
+    const content = lastMessage.content || '';
+    if (content.length === 0) return; // 避免覆盖历史数据
+
+    debug.log('保存AI消息到localStorage', lastMessage.id);
+    markMessageAsProcessed(lastMessage.id);
+
+    const useChatMessages = messages.map((msg: any) => ({
+      id: msg.id,
+      role: msg.role,
+      content: msg.content || '',
+      createdAt: new Date(),
+      data: {
+        steps: msg.steps || [],
+        metadata: msg.metadata,
       }
-    }
+    }));
 
-    prevMessagesRef.current = messages;
-  }, [messages, isLoading]);
+    syncConversationFromUseChat(conversationId, useChatMessages);
 
-  // 监听 messages 变化,当AI消息完成时保存 steps 到 localStorage
-  const prevMessagesLengthRef = useRef(messages.length);
-  const hasProcessedMessageRef = useRef<Set<string>>(new Set());
-
-  useEffect(() => {
-    debug.log('💾 Save steps useEffect triggered', {
-      messagesLength: messages.length,
-      prevLength: prevMessagesLengthRef.current,
-      isLoading,
-      hasNewMessage: messages.length > prevMessagesLengthRef.current
-    });
-
-    // 检测到新消息且不在loading状态
-    if (messages.length > prevMessagesLengthRef.current && !isLoading) {
-      const lastMessage = messages[messages.length - 1];
-
-      debug.log('✅ Condition met - new message when not loading', {
-        messageId: lastMessage.id,
-        role: lastMessage.role,
-        alreadyProcessed: hasProcessedMessageRef.current.has(lastMessage.id)
+    // 🔧 调用NER API识别实体并保存
+    if (content.length > 0) {
+      fetchEntities(content).then((entities) => {
+        if (entities.length > 0) {
+          debug.log('✅ NER识别完成，保存entities到消息', { messageId: lastMessage.id, entitiesCount: entities.length });
+          updateMessageField(conversationId, lastMessage.id, 'entities', entities);
+        }
+      }).catch((error) => {
+        debug.error('❌ NER识别失败', error);
       });
-
-      // 只处理assistant消息,且没有处理过
-      if (lastMessage.role === "assistant" && !hasProcessedMessageRef.current.has(lastMessage.id)) {
-        debug.log('检测到新的AI消息,准备保存 steps');
-
-        // 标记为已处理
-        hasProcessedMessageRef.current.add(lastMessage.id);
-
-        // 从消息中提取 steps 和 metadata
-        const finalSteps = getMessageSteps(lastMessage);
-        const finalMetadata = (lastMessage as any).metadata || null;
-        const messageContent = getMessageContent(lastMessage);
-
-        debug.log('最终提取的 steps 数量', finalSteps.length);
-        debug.log('最终提取的 metadata', finalMetadata);
-        debug.log('消息内容长度', messageContent.length);
-
-        // 只有当消息确实有内容时才保存（避免覆盖已有的正确数据）
-        // 如果是历史数据同步（content为空），跳过保存
-        if (params?.id && messageContent.length > 0) {
-          debug.log('同步最终数据到 localStorage');
-
-          // 创建兼容的消息对象 (包含 content 字段以兼容 localStorage 格式)
-          const messageWithData = {
-            id: lastMessage.id,
-            role: lastMessage.role,
-            content: getMessageContent(lastMessage),
-            createdAt: new Date(),
-            data: {
-              steps: finalSteps,
-              metadata: finalMetadata,
-            }
-          };
-
-          // 转换所有消息到兼容格式
-          const compatibleMessages = messages.slice(0, -1).map((msg: any) => ({
-            id: msg.id,
-            role: msg.role,
-            content: getMessageContent(msg),
-            createdAt: new Date(),
-            data: {
-              steps: getMessageSteps(msg),
-              metadata: (msg as any).metadata,
-            }
-          }));
-
-          syncConversationFromUseChat(
-            params.id as string,
-            [...compatibleMessages, messageWithData]
-          );
-        }
-
-        // ✅ 只有在成功处理assistant消息后才更新ref
-        prevMessagesLengthRef.current = messages.length;
-        debug.log('✅ Updated prevMessagesLengthRef after processing assistant message');
-      } else if (lastMessage.role === "user") {
-        // 如果是用户消息，也更新ref，避免重复检查
-        prevMessagesLengthRef.current = messages.length;
-        debug.log('ℹ️ Updated prevMessagesLengthRef after user message');
-      }
     }
-  }, [messages, isLoading, params?.id, syncConversationFromUseChat]);
+  }, [messages, isLoading, conversationId, updateMessageField, markMessageAsProcessed, syncConversationFromUseChat]);
 
-  // 当切换对话时,同步localStorage消息到useChat
+  // ✅ 简化：对话切换时同步数据
   useEffect(() => {
-    const conversationId = params?.id as string;
+    if (activeConversationId === conversationId) return;
 
-    // 检查conversationId是否变化（排除初始加载的情况，prevConversationIdRef为null时必须执行同步）
-    if (prevConversationIdRef.current === conversationId && prevConversationIdRef.current !== null) {
-      debug.log('conversationId未变化,跳过同步');
+    debug.log('对话切换', { from: activeConversationId, to: conversationId });
+    setActiveConversationId(conversationId);
+
+    if (!conversationId) {
+      // 回到 /chat 页面，清空消息
+      if (messages.length > 0) setMessages([]);
       return;
     }
 
-    if (conversationId) {
-      // 等待对话数据加载完成
-      if (currentMessages.length === 0) {
-        debug.log('conversationId存在但currentMessages为空,等待数据加载');
-        return;
-      }
-
-      debug.log('conversationId变化,同步localStorage到useChat', `${currentMessages.length}条消息`);
-
-      // 检查是否需要自动发送（新对话且只有1条用户消息）
-      const hasOnlyOneUserMessage = currentMessages.length === 1 && currentMessages[0].role === "user";
-      const notSentYet = !hasAutoSentRef.current.has(conversationId);
-
-      debug.log('自动发送检查', {
-        hasOnlyOneUserMessage,
-        notSentYet,
-        conversationId,
-        isLoading
-      });
-
-      if (hasOnlyOneUserMessage && notSentYet) {
-        debug.log('满足条件，准备自动发送消息');
-
-        // 标记为已发送
-        hasAutoSentRef.current.add(conversationId);
-
-        const messageToSend = currentMessages[0].content;
-
-        // 从localStorage读取useDeepThinking参数
-        const storageKey = `pending_useDeepThinking_${conversationId}`;
-        const storedValue = localStorage.getItem(storageKey);
-        const useDeepThinking = storedValue ? JSON.parse(storedValue) : false;
-        debug.log('自动发送使用 useDeepThinking', { key: storageKey, value: useDeepThinking });
-
-        // 清除 pending 标记
-        localStorage.removeItem(storageKey);
-
-        // 使用自定义SSE hook发送消息
-        debug.log('调用 sendMessage 发送', messageToSend.slice(0, 30));
-        sendMessage(messageToSend, useDeepThinking);
-      } else {
-        // 非新对话,同步localStorage消息到useChat
-        debug.log('同步localStorage到useChat (切换对话)');
-        const useChatMessages = currentMessages.map((msg) => ({
-          id: msg.id,
-          role: msg.role as "user" | "assistant",
-          content: msg.content,
-          steps: msg.steps,
-          metadata: msg.metadata,
-        }));
-        setMessages(useChatMessages as any);
-      }
-
-      // 成功同步后更新ref
-      prevConversationIdRef.current = conversationId;
-    } else {
-      // 在 /chat 页面,清空消息（只在实际有消息时才清空，避免无限循环）
-      if (messages.length > 0) {
-        debug.log('清空消息 (回到/chat页面)');
-        setMessages([]);
-      }
-
-      // 更新ref
-      prevConversationIdRef.current = null;
+    if (currentMessages.length === 0) {
+      debug.log('等待对话数据加载');
+      return;
     }
-  }, [params?.id, currentConversationId, currentMessages, isLoading, setMessages, sendMessage]);
 
-  const currentConversation = conversations.find(c => c.id === currentConversationId);
+    // 检查是否需要自动发送
+    const hasOnlyOneUserMessage = currentMessages.length === 1 && currentMessages[0].role === "user";
+    const notSentYet = !isConversationAutoSent(conversationId);
+
+    if (hasOnlyOneUserMessage && notSentYet && !isLoading) {
+      debug.log('自动发送新对话');
+      markConversationAsSent(conversationId);
+
+      const storageKey = `pending_useDeepThinking_${conversationId}`;
+      const useDeepThinking = JSON.parse(localStorage.getItem(storageKey) || 'false');
+      localStorage.removeItem(storageKey);
+
+      sendMessage(currentMessages[0].content, useDeepThinking);
+    } else {
+      // 同步localStorage到useChat
+      debug.log('同步消息', currentMessages.length);
+      const useChatMessages = currentMessages.map((msg) => ({
+        id: msg.id,
+        role: msg.role as "user" | "assistant",
+        content: msg.content,
+        steps: msg.steps,
+        metadata: msg.metadata,
+      }));
+      setMessages(useChatMessages as any);
+    }
+  }, [conversationId, activeConversationId, currentMessages.length, isLoading]);
+
+  const currentConversation = conversations.find(c => c.id === conversationId);
 
   const handleSend = async (message: string, useDeepThinking: boolean) => {
     debug.log('开始发送消息', `${message.slice(0, 50)} | useDeepThinking: ${useDeepThinking}`);
@@ -306,26 +190,6 @@ export function ChatConversation() {
 
   // 判断是否为空对话
   const isEmpty = messages.length === 0;
-
-  // 提取当前信息 (从最后一条 assistant 消息)
-  const lastMessage = messages[messages.length - 1];
-  const generatingMessageId = lastMessage?.id;
-
-  // 🚨 检测content流是否已开始 (B流检测)
-  const lastContent = lastMessage ? getMessageContent(lastMessage) : '';
-  const hasContentStarted = isLoading && lastMessage?.role === "assistant" && lastContent.length > 0;
-
-  // 调试日志 - 追踪流状态
-  useEffect(() => {
-    if (isLoading) {
-      debug.log('🌊 流状态', {
-        stepsCount: currentSteps.length,
-        contentLength: lastContent.length,
-        hasContentStarted,
-        流阶段: hasContentStarted ? "B流(报告)" : currentSteps.length > 0 ? "A流(推理)" : "等待中"
-      });
-    }
-  }, [isLoading, currentSteps.length, lastContent.length, hasContentStarted]);
 
   return (
     <div className="flex flex-col h-full bg-background relative overflow-hidden">
@@ -482,56 +346,22 @@ export function ChatConversation() {
           <StickToBottom className="flex-1 overflow-y-auto overflow-x-hidden" resize="smooth" initial="smooth">
             <StickToBottom.Content className="flex flex-col gap-0 pb-32">
               {messages.map((msg: any, index: number) => {
-                // 从 localStorage (currentMessages) 查找对应的消息,优先使用持久化的 steps 数据
                 const persistedMessage = currentMessages.find(m => m.id === msg.id);
-
-                // 提取消息内容和 steps (兼容 AI SDK 5.0 的 parts 格式)
-                const content = getMessageContent(msg);
-                const steps = persistedMessage?.steps || getMessageSteps(msg);
-
-                // 将useChat的Message转换为ChatMessage组件的格式
                 const messageData = {
                   id: msg.id,
                   role: msg.role as "user" | "assistant",
-                  content,
-                  steps,
-                  metadata: persistedMessage?.metadata || (msg as any).metadata,
+                  content: msg.content || '',
+                  steps: persistedMessage?.steps || msg.steps || [],
+                  metadata: persistedMessage?.metadata || msg.metadata,
+                  entities: persistedMessage?.entities || msg.entities || [],
                   timestamp: Date.now(),
                 };
 
-                console.log(`[ChatConversation] 渲染消息 ${msg.id}:`, {
-                  role: messageData.role,
-                  contentLength: content.length,
-                  stepsCount: steps?.length || 0,
-                  fromPersisted: !!persistedMessage?.steps,
-                  fromParts: !!(msg as any).parts
-                });
-
-                // 判断是否正在生成：最后一条assistant消息 + isLoading=true
                 const isLastMessage = index === messages.length - 1;
                 const isGenerating = isLoading && isLastMessage && msg.role === "assistant";
 
                 return <ChatMessage key={msg.id} message={messageData as any} isGenerating={isGenerating} />;
               })}
-
-              {/* 正在生成的消息 - 显示实时推理面板 */}
-              {/* 🚨 关键修复: 只在A流阶段显示,一旦B流开始就隐藏 */}
-              {isLoading && generatingMessageId && currentSteps.length > 0 && !hasContentStarted && (
-                <div className="py-6 px-4 md:px-6 bg-muted/30">
-                  <div className="w-full">
-                    <ReasoningPanel
-                      message={{
-                        id: generatingMessageId,
-                        role: "assistant",
-                        content: "",
-                        steps: currentSteps,
-                        timestamp: Date.now()
-                      } as any}
-                      isGenerating={true}
-                    />
-                  </div>
-                </div>
-              )}
 
               {/* Loading indicator */}
               {isLoading && (
