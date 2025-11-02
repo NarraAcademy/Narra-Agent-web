@@ -54,8 +54,8 @@ export default function remarkEntityHighlight(entities: Entity[] = []) {
     console.log('🌲 [remarkEntityHighlight] Processing markdown tree');
     let processedCount = 0;
 
-    visit(tree, 'text', (node: Text, index: number | null, parent: Parent | null) => {
-      if (!node.value || index === null || !parent) return;
+    visit(tree, 'text', (node: Text, index: number | undefined, parent: Parent | undefined) => {
+      if (!node.value || index === undefined || !parent) return;
 
       // 跳过代码块中的文本
       if (parent.type === 'code' || parent.type === 'inlineCode') {
