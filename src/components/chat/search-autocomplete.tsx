@@ -153,7 +153,7 @@ export function SearchAutocomplete() {
     <div className="relative w-full">
       {/* 搜索框 */}
       <div className="relative">
-        <MagnifyingGlassIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+        <MagnifyingGlassIcon className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
         <Input
           placeholder={t("search_placeholder")}
           value={query}
@@ -163,7 +163,7 @@ export function SearchAutocomplete() {
             // 延迟关闭以允许点击下拉列表
             setTimeout(() => setIsFocused(false), 200);
           }}
-          className="pl-12 rounded-xl pr-4 h-12 text-base"
+          className="border-primary pr-12 rounded-2xl pl-4 h-12 text-base "
         />
       </div>
 

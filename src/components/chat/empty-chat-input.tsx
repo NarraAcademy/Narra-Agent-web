@@ -100,7 +100,7 @@ export function EmptyChatInput({ onSend, disabled, value = "", onChange }: Empty
           onClick={handleSend}
           className="p-2 rounded-full bg-primary hover:bg-primary/90 flex items-center justify-center shrink-0 transition-colors cursor-pointer"
         >
-          <Send className="w-4 h-4" />
+          <Send className="w-4 h-4 text-primary-foreground" />
         </div>
       </div>
     </div>
