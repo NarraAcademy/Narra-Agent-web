@@ -120,7 +120,7 @@ export function ChatSidebar({
         />
       </div>
 
-      <div className="space-y-2 pb-2 border-b border-gray-800">
+      <div className="space-y-2 pb-2 border-b">
         {/* 新建对话按钮 */}
         {!collapsed ? (
           <div
