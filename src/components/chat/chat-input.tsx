@@ -72,7 +72,7 @@ export function ChatInput({ onSend, disabled, variant = "centered", value: exter
   if (variant === "floating") {
     return (
       <div className="absolute bottom-12 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] md:max-w-[800px] z-50">
-        <div className="bg-background rounded-3xl shadow-lg border border-border p-2">
+        <div className="bg-background rounded-3xl shadow-lg border border-primary/50 p-2">
           {inputContent}
         </div>
       </div>

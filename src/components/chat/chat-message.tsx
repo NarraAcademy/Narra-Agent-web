@@ -121,7 +121,7 @@ export function ChatMessage({ message, isGenerating = false }: ChatMessageProps)
   return (
     <div
       className={cn(
-        "py-4 px-4 md:px-6",
+        "py-4",
         isUser ? "flex gap-3 bg-background items-center" : "bg-muted/30"
       )}
     >
@@ -177,7 +177,7 @@ export function ChatMessage({ message, isGenerating = false }: ChatMessageProps)
                   />
 
                   {/* 操作按钮栏 */}
-                  <div className="flex justify-end gap-3 mt-4 pt-4 border-t border-border">
+                  <div className="flex justify-start gap-3 mt-4 pt-4 border-t border-border">
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <DownloadIcon className="h-5 w-5 cursor-pointer text-muted-foreground hover:text-foreground transition-colors" />

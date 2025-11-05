@@ -314,7 +314,7 @@ export function ChatConversation() {
         /* 聊天状态: 顶部标题 + 消息列表 + 底部输入框 */
         <>
           {/* 顶部标题栏 */}
-          <div className="px-6 py-4 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+          <div className="px-6 py-[13.5px] bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
             <h1 className="text-lg font-semibold">
               {currentConversation?.title || "Narra Agent"}
             </h1>
@@ -322,7 +322,7 @@ export function ChatConversation() {
 
           {/* 消息列表 - 使用StickToBottom实现智能滚动 */}
           <StickToBottom className="flex-1 overflow-y-auto overflow-x-hidden" resize="smooth" initial="smooth">
-            <StickToBottom.Content className="flex flex-col gap-0 pb-32">
+            <StickToBottom.Content className="flex flex-col gap-0 pb-32 w-[708px] mx-auto">
               {messages.map((msg: any, index: number) => {
                 const persistedMessage = currentMessages.find(m => m.id === msg.id);
                 const messageData = {

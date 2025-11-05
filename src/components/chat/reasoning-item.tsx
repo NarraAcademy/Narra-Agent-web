@@ -32,7 +32,7 @@ const ReasoningItemComponent = ({ reasoning }: ReasoningItemProps) => {
     >
       {/* Solid dot indicator */}
       <div className="w-3 h-3 shrink-0 mt-0.5 flex items-center justify-center">
-        <div className="w-1.5 h-1.5 rounded-full bg-primary" />
+        <div className="w-1.5 h-1.5 rounded-full bg-foreground" />
       </div>
 
       {/* Content area */}

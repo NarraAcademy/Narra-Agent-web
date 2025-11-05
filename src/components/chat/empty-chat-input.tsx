@@ -50,7 +50,7 @@ export function EmptyChatInput({ onSend, disabled, value = "", onChange }: Empty
           onKeyDown={handleKeyDown}
           placeholder={t("input_placeholder")}
           disabled={disabled}
-          className="flex-1 resize-none border-0 !bg-transparent text-sm text-muted-foreground placeholder:text-muted-foreground outline-none p-0"
+          className="flex-1 resize-none border-0 !bg-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none p-0"
           rows={3}
         />
       </div>

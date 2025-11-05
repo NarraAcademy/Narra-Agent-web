@@ -161,7 +161,7 @@ export function ChatSidebar({
           </div>
         )}
 
-        {/* 加密数据中心按钮 */}
+        {/* 加密洞察按钮 */}
         {!collapsed ? (
           <div
             onClick={() => router.push('/analytics')}

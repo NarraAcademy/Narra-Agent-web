@@ -166,7 +166,7 @@ export function ChatUserSection({ collapsed = false }: { collapsed?: boolean }) 
           size="sm"
           className="h-7 text-xs shrink-0"
         >
-          <Link href="/pricing">{t("upgrade")} 🚀</Link>
+          <Link href="/pricing">{t("upgrade")}</Link>
         </Button>
 
         {/* 更多菜单 */}
