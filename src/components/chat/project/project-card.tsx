@@ -148,14 +148,11 @@ export function ProjectCard({ entity }: ProjectCardProps) {
       <div className="flex items-start gap-3">
         {data.image && (
           <Image
-            src={typeof data.image === 'string' ? data.image : (data.image as any).large}
+            src={data.image}
             alt={data.name}
             width={48}
             height={48}
             className="w-12 h-12 rounded-lg object-cover border border-border shrink-0"
-            onError={(e) => {
-              e.currentTarget.style.display = 'none';
-            }}
           />
         )}
         <div className="flex-1 min-w-0">

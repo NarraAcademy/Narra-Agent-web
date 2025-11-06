@@ -9,6 +9,7 @@ import type { UnifiedEntityDetail } from "@/types/unified-entity";
 import { PriceChart } from "../price-chart";
 import { EntityRadarChart } from "@/components/ui/entity-radar-chart";
 import { calculateTokenScores } from "@/utils/entity-scores";
+import Image from "next/image";
 
 // 价格数据点类型
 interface PriceDataPoint {
@@ -165,9 +166,11 @@ export function TokenDetailContent({ entity, showToc }: { entity: string; showTo
             {/* Header */}
             <div className="flex items-start gap-6">
               {token.image && (
-                <img
-                  src={typeof token.image === 'string' ? token.image : (token.image as any).large}
+                <Image
+                  src={token.image}
                   alt={token.name}
+                  width={80}
+                  height={80}
                   className="w-20 h-20 rounded-xl border border-border shrink-0"
                 />
               )}

@@ -32,15 +32,6 @@ export interface UnifiedXAccount {
 }
 
 /**
- * Token图片信息
- */
-export interface UnifiedTokenImage {
-  thumb: string;
-  small: string;
-  large: string;
-}
-
-/**
  * Token市场数据（所有字段统一为 number）
  */
 export interface UnifiedTokenMarketData {
@@ -192,7 +183,7 @@ export interface UnifiedEntityDetail {
   id: string;
   name: string;
   symbol?: string;
-  image: string | UnifiedTokenImage;
+  image: string;
   description: string;
 
   // Project 特有字段（当 type === 'PROJECT' 时存在）

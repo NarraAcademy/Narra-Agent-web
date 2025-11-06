@@ -274,18 +274,11 @@ export function ProjectDetailContent({
             <div className="flex items-start gap-6">
               {data.image && (
                 <Image
-                  src={
-                    typeof data.image === "string"
-                      ? data.image
-                      : (data.image as any).large
-                  }
+                  src={data.image}
                   alt={data.name}
                   width={80}
                   height={80}
                   className="w-20 h-20 rounded-xl object-cover border border-border shrink-0"
-                  onError={(e) => {
-                    e.currentTarget.style.display = "none";
-                  }}
                 />
               )}
               <div className="flex-1">
@@ -437,9 +430,11 @@ export function ProjectDetailContent({
                   >
                     <div className="flex items-start gap-3">
                       {member.avatar && (
-                        <img
+                        <Image
                           src={member.avatar}
                           alt={member.name}
+                          width={48}
+                          height={48}
                           className="w-12 h-12 rounded-full border border-border"
                         />
                       )}
@@ -505,9 +500,11 @@ export function ProjectDetailContent({
                     </h3>
                     <div className="flex items-center gap-3 mb-4">
                       {mainXAccount.profileImage && (
-                        <img
+                        <Image
                           src={mainXAccount.profileImage}
                           alt={mainXAccount.displayName}
+                          width={48}
+                          height={48}
                           className="w-12 h-12 rounded-full"
                         />
                       )}
@@ -604,9 +601,11 @@ export function ProjectDetailContent({
                           style={{ animationDelay: `${0.85 + index * 0.01}s` }}
                         >
                           {exchangeLogo && exchangeLogo.trim() !== "" && (
-                            <img
+                            <Image
                               src={exchangeLogo}
                               alt={exchangeName}
+                              width={16}
+                              height={16}
                               className="w-4 h-4 object-contain"
                             />
                           )}
@@ -657,9 +656,11 @@ export function ProjectDetailContent({
                         >
                           <div className="flex items-start gap-3">
                             {projectLogo && projectLogo.trim() !== "" && (
-                              <img
+                              <Image
                                 src={projectLogo}
                                 alt={projectName}
+                                width={48}
+                                height={48}
                                 className="w-12 h-12 rounded-lg object-cover border border-border shrink-0"
                               />
                             )}

@@ -1,10 +1,11 @@
 "use client";
 
-import useSWR from "swr";
 import { ExternalLinkIcon, ArrowUpIcon, ArrowDownIcon } from "@radix-ui/react-icons";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
-import type { TokenDetail, ApiResponse, BackendTokenResponse } from "@/types/entity";
+import Image from "next/image";
+import { useTokenDetail } from "@/hooks/use-token-detail";
+import type { UnifiedEntityDetail } from "@/types/unified-entity";
 
 interface TokenCardProps {
   entity: string;
@@ -88,20 +89,24 @@ function formatPercentage(value: string): { text: string; color: string; icon: R
 /**
  * Token卡片内容组件
  */
-function TokenCardContent({ token }: { token: TokenDetail }) {
-  const { market_data, links, categories } = token;
+function TokenCardContent({ token }: { token: UnifiedEntityDetail }) {
+  if (!token.tokenData) return null;
 
-  const price24h = formatPercentage(market_data.price_change_percentage_24h);
-  const price7d = formatPercentage(market_data.price_change_percentage_7d);
-  const price30d = formatPercentage(market_data.price_change_percentage_30d);
+  const { marketData, links, categories } = token.tokenData;
+
+  const price24h = formatPercentage(String(marketData.priceChangePercentage24h));
+  const price7d = formatPercentage(String(marketData.priceChangePercentage7d));
+  const price30d = formatPercentage(String(marketData.priceChangePercentage30d));
 
   return (
     <div className="space-y-3 text-sm max-w-[400px]">
       {/* 头部：Logo + 基本信息 */}
       <div className="flex items-start gap-3">
-        <img
-          src={token.image.large}
+        <Image
+          src={token.image}
           alt={token.name}
+          width={48}
+          height={48}
           className="w-12 h-12 rounded-full border border-border shrink-0"
         />
         <div className="flex-1 min-w-0">
@@ -110,11 +115,11 @@ function TokenCardContent({ token }: { token: TokenDetail }) {
           </h4>
           <div className="flex items-center gap-2 mt-1">
             <span className="text-xs font-medium text-muted-foreground">
-              {token.symbol.toUpperCase()}
+              {token.symbol?.toUpperCase()}
             </span>
-            {token.market_cap_rank && (
+            {token.tokenData?.marketCapRank && (
               <Badge variant="secondary" className="text-xs px-1.5 py-0">
-                Rank #{token.market_cap_rank}
+                Rank #{token.tokenData.marketCapRank}
               </Badge>
             )}
           </div>
@@ -126,13 +131,13 @@ function TokenCardContent({ token }: { token: TokenDetail }) {
         <div className="space-y-1">
           <p className="text-xs text-muted-foreground">Price</p>
           <p className="text-lg font-bold text-foreground">
-            ${market_data.current_price}
+            ${marketData.currentPrice}
           </p>
         </div>
         <div className="space-y-1">
           <p className="text-xs text-muted-foreground">Market Cap</p>
           <p className="text-base font-semibold text-foreground">
-            {formatLargeNumber(market_data.market_cap)}
+            {formatLargeNumber(String(marketData.marketCap))}
           </p>
         </div>
       </div>
@@ -158,13 +163,13 @@ function TokenCardContent({ token }: { token: TokenDetail }) {
         <div className="space-y-1">
           <p className="text-xs text-muted-foreground">24h Volume</p>
           <p className="text-sm font-medium text-foreground">
-            {formatLargeNumber(market_data.total_volume)}
+            {formatLargeNumber(String(marketData.totalVolume))}
           </p>
         </div>
         <div className="space-y-1">
           <p className="text-xs text-muted-foreground">Circulating Supply</p>
           <p className="text-sm font-medium text-foreground">
-            {formatLargeNumber(market_data.circulating_supply)}
+            {formatLargeNumber(String(marketData.circulatingSupply))}
           </p>
         </div>
       </div>
@@ -184,7 +189,7 @@ function TokenCardContent({ token }: { token: TokenDetail }) {
       )}
 
       {/* 链接 */}
-      {(links.homepage || links.twitter_screen_name) && (
+      {links && (links.homepage || links.twitterScreenName) && (
         <div className="flex gap-2 pt-2 border-t border-border">
           {links.homepage && (
             <a
@@ -197,9 +202,9 @@ function TokenCardContent({ token }: { token: TokenDetail }) {
               <ExternalLinkIcon className="w-3 h-3" />
             </a>
           )}
-          {links.twitter_screen_name && (
+          {links.twitterScreenName && (
             <a
-              href={`https://twitter.com/${links.twitter_screen_name}`}
+              href={`https://twitter.com/${links.twitterScreenName}`}
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-1 text-xs text-primary hover:underline"
@@ -218,26 +223,7 @@ function TokenCardContent({ token }: { token: TokenDetail }) {
  * Token卡片主组件
  */
 export function TokenCard({ entity }: TokenCardProps) {
-  const fetcher = async (url: string) => {
-    const response = await fetch(url);
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    const json: ApiResponse<BackendTokenResponse> = await response.json();
-    if (json.code !== 0) {
-      throw new Error(json.message || 'Failed to fetch token details');
-    }
-    return json.data.data; // 解包 BackendTokenResponse 的 data 字段
-  };
-
-  const { data: token, error, isLoading } = useSWR<TokenDetail>(
-    `/api/services/token?token=${encodeURIComponent(entity)}`,
-    fetcher,
-    {
-      revalidateOnFocus: false,
-      revalidateOnReconnect: false,
-    }
-  );
+  const { data: token, error, isLoading } = useTokenDetail(entity);
 
   if (isLoading) return <TokenCardSkeleton />;
   if (error || !token) return <TokenCardError entity={entity} />;
