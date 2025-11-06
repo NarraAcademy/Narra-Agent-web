@@ -8,21 +8,21 @@ const fetcher = async (url: string): Promise<UnifiedEntityDetail> => {
 
   const json = await response.json();
   if (json.code !== 0) {
-    throw new Error(json.message || 'Failed to fetch project detail');
+    throw new Error(json.message || 'Failed to fetch token detail');
   }
 
   return json.data;
 };
 
 /**
- * SWR Hook for fetching project details
- * @param entity - Project entity name
+ * SWR Hook for fetching token details
+ * @param token - Token name or symbol
  * @param enabled - Whether to enable fetching (default: true)
  */
-export function useProjectDetail(entity: string | null, enabled = true) {
+export function useTokenDetail(token: string | null, enabled = true) {
   const { data, error, isLoading, isValidating } = useSWR<UnifiedEntityDetail>(
-    // SWR key: only fetch when entity exists and enabled
-    entity && enabled ? `/api/services/project?entity=${encodeURIComponent(entity)}` : null,
+    // SWR key: only fetch when token exists and enabled
+    token && enabled ? `/api/services/token?token=${encodeURIComponent(token)}` : null,
     fetcher,
     {
       // SWR 配置

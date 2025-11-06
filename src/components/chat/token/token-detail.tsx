@@ -1,12 +1,14 @@
 "use client";
 
-import useSWR from "swr";
+import { useTokenDetail } from "@/hooks/use-token-detail";
 import { ExternalLinkIcon, ArrowUpIcon, ArrowDownIcon } from "@radix-ui/react-icons";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { TableOfContents, type TocItem } from "../table-of-contents";
-import type { TokenDetail, ApiResponse, BackendTokenResponse } from "@/types/entity";
+import type { UnifiedEntityDetail } from "@/types/unified-entity";
 import { PriceChart } from "../price-chart";
+import { EntityRadarChart } from "@/components/ui/entity-radar-chart";
+import { calculateTokenScores } from "@/utils/entity-scores";
 
 // 价格数据点类型
 interface PriceDataPoint {
@@ -99,19 +101,7 @@ function DataItem({ label, value, highlight }: { label: string; value: React.Rea
  * Token详情内容组件 - 章节化布局
  */
 export function TokenDetailContent({ entity, showToc }: { entity: string; showToc: boolean }) {
-  const fetcher = async (url: string) => {
-    const response = await fetch(url);
-    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-    const json: ApiResponse<BackendTokenResponse> = await response.json();
-    if (json.code !== 0) throw new Error(json.message || 'Failed to fetch token details');
-    return json.data.data;
-  };
-
-  const { data: token, error, isLoading } = useSWR<TokenDetail>(
-    `/api/services/token?token=${encodeURIComponent(entity)}`,
-    fetcher,
-    { revalidateOnFocus: false, revalidateOnReconnect: false }
-  );
+  const { data: token, error, isLoading } = useTokenDetail(entity);
 
   if (isLoading) return <TokenDetailSkeleton />;
   if (error || !token) {
@@ -122,40 +112,43 @@ export function TokenDetailContent({ entity, showToc }: { entity: string; showTo
     );
   }
 
-  const { market_data, links, categories, community_data, developer_data } = token;
+  const marketData = token.tokenData?.marketData;
+  const links = token.tokenData?.links;
+  const categories = token.tokenData?.categories;
+  const communityData = token.tokenData?.communityData;
+  const developerData = token.tokenData?.developerData;
 
   // 后端已经返回完整的 PriceChartData 格式，直接使用（market_chart在根层级）
-  const priceChartData = token.market_chart?.price as PriceChartData | null | undefined;
+  const priceChartData = token.tokenData?.priceChart?.price as PriceChartData | null | undefined;
 
-  const formatLargeNumber = (value: string): string => {
-    const num = parseFloat(value);
-    if (isNaN(num)) return 'N/A';
-    if (num >= 1e12) return `$${(num / 1e12).toFixed(2)}T`;
-    if (num >= 1e9) return `$${(num / 1e9).toFixed(2)}B`;
-    if (num >= 1e6) return `$${(num / 1e6).toFixed(2)}M`;
-    if (num >= 1e3) return `$${(num / 1e3).toFixed(2)}K`;
-    return `$${num.toFixed(2)}`;
+  const formatLargeNumber = (value: number): string => {
+    if (isNaN(value)) return 'N/A';
+    if (value >= 1e12) return `$${(value / 1e12).toFixed(2)}T`;
+    if (value >= 1e9) return `$${(value / 1e9).toFixed(2)}B`;
+    if (value >= 1e6) return `$${(value / 1e6).toFixed(2)}M`;
+    if (value >= 1e3) return `$${(value / 1e3).toFixed(2)}K`;
+    return `$${value.toFixed(2)}`;
   };
 
-  const formatPercentage = (value: string): { text: string; color: string; icon: React.ReactNode } => {
-    const num = parseFloat(value);
-    if (isNaN(num)) return { text: 'N/A', color: 'text-muted-foreground', icon: null };
-    const isPositive = num >= 0;
+  const formatPercentage = (value: number): { text: string; color: string; icon: React.ReactNode } => {
+    if (isNaN(value)) return { text: 'N/A', color: 'text-muted-foreground', icon: null };
+    const isPositive = value >= 0;
     const color = isPositive ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400';
     const icon = isPositive ? <ArrowUpIcon className="w-4 h-4" /> : <ArrowDownIcon className="w-4 h-4" />;
-    return { text: `${isPositive ? '+' : ''}${num.toFixed(2)}%`, color, icon };
+    return { text: `${isPositive ? '+' : ''}${value.toFixed(2)}%`, color, icon };
   };
 
-  const price1h = formatPercentage(market_data.price_change_percentage_1h);
-  const price24h = formatPercentage(market_data.price_change_percentage_24h);
-  const price7d = formatPercentage(market_data.price_change_percentage_7d);
-  const price30d = formatPercentage(market_data.price_change_percentage_30d);
+  const price1h = formatPercentage(marketData?.priceChangePercentage1h || 0);
+  const price24h = formatPercentage(marketData?.priceChangePercentage24h || 0);
+  const price7d = formatPercentage(marketData?.priceChangePercentage7d || 0);
+  const price30d = formatPercentage(marketData?.priceChangePercentage30d || 0);
 
   // 目录项
   const tocItems: TocItem[] = [
     { id: 'overview', title: 'Overview', level: 1 },
     { id: 'price', title: 'Price & Market Data', level: 1 },
     ...(priceChartData?.data?.length ? [{ id: 'price-chart', title: 'Price Chart', level: 1 }] : []),
+    { id: 'health-score', title: 'Market Health Score', level: 1 },
     { id: 'supply', title: 'Supply Information', level: 1 },
     { id: 'community', title: 'Community & Development', level: 1 },
     { id: 'about', title: 'About', level: 1 },
@@ -171,22 +164,24 @@ export function TokenDetailContent({ entity, showToc }: { entity: string; showTo
           <div className="space-y-6">
             {/* Header */}
             <div className="flex items-start gap-6">
-              <img
-                src={token.image.large}
-                alt={token.name}
-                className="w-20 h-20 rounded-xl border border-border shrink-0"
-              />
+              {token.image && (
+                <img
+                  src={typeof token.image === 'string' ? token.image : (token.image as any).large}
+                  alt={token.name}
+                  className="w-20 h-20 rounded-xl border border-border shrink-0"
+                />
+              )}
               <div className="flex-1">
                 <h1 className="text-3xl font-bold text-foreground mb-2">
                   {token.name}
                 </h1>
                 <div className="flex items-center gap-3 flex-wrap">
                   <span className="text-lg font-medium text-muted-foreground">
-                    {token.symbol.toUpperCase()}
+                    {token.symbol?.toUpperCase()}
                   </span>
-                  {token.market_cap_rank && (
+                  {token.tokenData?.marketCapRank && (
                     <Badge variant="secondary" className="text-sm px-3 py-1">
-                      Rank #{token.market_cap_rank}
+                      Rank #{token.tokenData.marketCapRank}
                     </Badge>
                   )}
                 </div>
@@ -196,13 +191,13 @@ export function TokenDetailContent({ entity, showToc }: { entity: string; showTo
             {/* Quick Stats */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-6 bg-muted/30 rounded-lg border border-border">
               <div className="animate-fade-in-up">
-                <DataItem label="Current Price" value={`$${market_data.current_price}`} highlight />
+                <DataItem label="Current Price" value={`$${marketData?.currentPrice || 0}`} highlight />
               </div>
               <div className="animate-fade-in-up">
-                <DataItem label="Market Cap" value={formatLargeNumber(market_data.market_cap)} />
+                <DataItem label="Market Cap" value={formatLargeNumber(marketData?.marketCap || 0)} />
               </div>
               <div className="animate-fade-in-up">
-                <DataItem label="24h Volume" value={formatLargeNumber(market_data.total_volume)} />
+                <DataItem label="24h Volume" value={formatLargeNumber(marketData?.totalVolume || 0)} />
               </div>
             </div>
           </div>
@@ -244,13 +239,13 @@ export function TokenDetailContent({ entity, showToc }: { entity: string; showTo
               <div className="space-y-3 p-4 rounded-lg border border-border">
                 <h3 className="text-sm font-medium text-muted-foreground">All-Time High</h3>
                 <div className="space-y-2">
-                  <p className="text-2xl font-bold text-foreground">{formatLargeNumber(market_data.ath)}</p>
+                  <p className="text-2xl font-bold text-foreground">{formatLargeNumber(marketData?.ath || 0)}</p>
                   <div className="flex items-center gap-2 text-sm">
-                    <span className={cn("font-medium", formatPercentage(market_data.ath_change_percentage).color)}>
-                      {formatPercentage(market_data.ath_change_percentage).text}
+                    <span className={cn("font-medium", formatPercentage(marketData?.athChangePercentage || 0).color)}>
+                      {formatPercentage(marketData?.athChangePercentage || 0).text}
                     </span>
                     <span className="text-muted-foreground">
-                      {new Date(market_data.ath_date).toLocaleDateString()}
+                      {marketData?.athDate && new Date(marketData.athDate).toLocaleDateString()}
                     </span>
                   </div>
                 </div>
@@ -259,13 +254,13 @@ export function TokenDetailContent({ entity, showToc }: { entity: string; showTo
               <div className="space-y-3 p-4 rounded-lg border border-border">
                 <h3 className="text-sm font-medium text-muted-foreground">All-Time Low</h3>
                 <div className="space-y-2">
-                  <p className="text-2xl font-bold text-foreground">{formatLargeNumber(market_data.atl)}</p>
+                  <p className="text-2xl font-bold text-foreground">{formatLargeNumber(marketData?.atl || 0)}</p>
                   <div className="flex items-center gap-2 text-sm">
-                    <span className={cn("font-medium", formatPercentage(market_data.atl_change_percentage).color)}>
-                      {formatPercentage(market_data.atl_change_percentage).text}
+                    <span className={cn("font-medium", formatPercentage(marketData?.atlChangePercentage || 0).color)}>
+                      {formatPercentage(marketData?.atlChangePercentage || 0).text}
                     </span>
                     <span className="text-muted-foreground">
-                      {new Date(market_data.atl_date).toLocaleDateString()}
+                      {marketData?.atlDate && new Date(marketData.atlDate).toLocaleDateString()}
                     </span>
                   </div>
                 </div>
@@ -276,9 +271,9 @@ export function TokenDetailContent({ entity, showToc }: { entity: string; showTo
             <div>
               <h3 className="text-sm font-medium text-muted-foreground mb-3">Market Statistics</h3>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                <DataItem label="Fully Diluted Valuation" value={formatLargeNumber(market_data.fully_diluted_valuation)} />
-                <DataItem label="24h High" value={formatLargeNumber(market_data.high_24h)} />
-                <DataItem label="24h Low" value={formatLargeNumber(market_data.low_24h)} />
+                <DataItem label="Fully Diluted Valuation" value={formatLargeNumber(marketData?.fullyDilutedValuation || 0)} />
+                <DataItem label="24h High" value={formatLargeNumber(marketData?.high24h || 0)} />
+                <DataItem label="24h Low" value={formatLargeNumber(marketData?.low24h || 0)} />
               </div>
             </div>
           </div>
@@ -294,14 +289,22 @@ export function TokenDetailContent({ entity, showToc }: { entity: string; showTo
           </section>
         )}
 
+        {/* Market Health Score Section */}
+        <section id="health-score" className="animate-fade-in-up">
+          <SectionTitle id="health-score">Market Health Score</SectionTitle>
+          <div className="p-6 rounded-lg border border-border bg-muted/10">
+            <EntityRadarChart scores={calculateTokenScores(token)} />
+          </div>
+        </section>
+
         {/* Supply Information Section */}
         <section id="supply" className="animate-fade-in-up">
           <SectionTitle id="supply">Supply Information</SectionTitle>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <DataItem label="Circulating Supply" value={formatLargeNumber(market_data.circulating_supply)} />
-            <DataItem label="Total Supply" value={formatLargeNumber(market_data.total_supply)} />
-            {market_data.max_supply && (
-              <DataItem label="Max Supply" value={formatLargeNumber(market_data.max_supply)} />
+            <DataItem label="Circulating Supply" value={formatLargeNumber(marketData?.circulatingSupply || 0)} />
+            <DataItem label="Total Supply" value={formatLargeNumber(marketData?.totalSupply || 0)} />
+            {marketData?.maxSupply && (
+              <DataItem label="Max Supply" value={formatLargeNumber(marketData.maxSupply)} />
             )}
           </div>
         </section>
@@ -311,32 +314,32 @@ export function TokenDetailContent({ entity, showToc }: { entity: string; showTo
           <SectionTitle id="community">Community & Development</SectionTitle>
           <div className="space-y-6">
             {/* Community Data */}
-            {community_data && (
+            {communityData && (
               <div>
                 <h3 className="text-sm font-medium text-muted-foreground mb-3">Community</h3>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                  {community_data.reddit_subscribers > 0 && (
-                    <DataItem label="Reddit Subscribers" value={community_data.reddit_subscribers.toLocaleString()} />
+                  {communityData.redditSubscribers > 0 && (
+                    <DataItem label="Reddit Subscribers" value={communityData.redditSubscribers.toLocaleString()} />
                   )}
-                  {community_data.telegram_channel_user_count && (
-                    <DataItem label="Telegram Users" value={community_data.telegram_channel_user_count.toLocaleString()} />
+                  {communityData.telegramChannelUserCount && (
+                    <DataItem label="Telegram Users" value={communityData.telegramChannelUserCount.toLocaleString()} />
                   )}
-                  {community_data.reddit_average_posts_48h > 0 && (
-                    <DataItem label="Reddit Posts (48h)" value={community_data.reddit_average_posts_48h.toFixed(1)} />
+                  {communityData.redditAveragePosts48h > 0 && (
+                    <DataItem label="Reddit Posts (48h)" value={communityData.redditAveragePosts48h.toFixed(1)} />
                   )}
                 </div>
               </div>
             )}
 
             {/* Developer Data */}
-            {developer_data && developer_data.forks > 0 && (
+            {developerData && developerData.forks > 0 && (
               <div>
                 <h3 className="text-sm font-medium text-muted-foreground mb-3">Development Activity</h3>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  <DataItem label="GitHub Stars" value={developer_data.stars.toLocaleString()} />
-                  <DataItem label="Forks" value={developer_data.forks.toLocaleString()} />
-                  <DataItem label="Contributors" value={developer_data.pull_request_contributors.toLocaleString()} />
-                  <DataItem label="Commits (4w)" value={developer_data.commit_count_4_weeks.toLocaleString()} />
+                  <DataItem label="GitHub Stars" value={developerData.stars.toLocaleString()} />
+                  <DataItem label="Forks" value={developerData.forks.toLocaleString()} />
+                  <DataItem label="Contributors" value={developerData.pullRequestContributors.toLocaleString()} />
+                  <DataItem label="Commits (4w)" value={developerData.commitCount4Weeks.toLocaleString()} />
                 </div>
               </div>
             )}
@@ -380,7 +383,7 @@ export function TokenDetailContent({ entity, showToc }: { entity: string; showTo
           <SectionTitle id="links">Links & Resources</SectionTitle>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Official Links */}
-            {(links.homepage || links.twitter_screen_name) && (
+            {(links?.homepage || links?.twitterScreenName) && (
               <div>
                 <h3 className="text-sm font-medium text-muted-foreground mb-3">Official Links</h3>
                 <div className="flex flex-wrap gap-2">
@@ -400,9 +403,9 @@ export function TokenDetailContent({ entity, showToc }: { entity: string; showTo
                       Website
                     </a>
                   )}
-                  {links.twitter_screen_name && (
+                  {links.twitterScreenName && (
                     <a
-                      href={`https://twitter.com/${links.twitter_screen_name}`}
+                      href={`https://twitter.com/${links.twitterScreenName}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className={cn(
@@ -421,11 +424,11 @@ export function TokenDetailContent({ entity, showToc }: { entity: string; showTo
             )}
 
             {/* Blockchain Explorers */}
-            {links.blockchain_site && links.blockchain_site.length > 0 && (
+            {links?.blockchainSite && links.blockchainSite.length > 0 && (
               <div>
                 <h3 className="text-sm font-medium text-muted-foreground mb-3">Blockchain Explorers</h3>
                 <div className="flex flex-wrap gap-2">
-                  {links.blockchain_site.slice(0, 3).map((site, idx) => (
+                  {links.blockchainSite.slice(0, 3).map((site, idx) => (
                     <a
                       key={idx}
                       href={site}

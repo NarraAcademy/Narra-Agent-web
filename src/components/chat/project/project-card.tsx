@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 import { CyberScoreChart } from "./cyber-score-chart";
 import { PriceChart } from "../price-chart";
 import { Badge } from "@/components/ui/badge";
+import Image from "next/image";
 import type { ProjectDetail } from "@/types/entity";
 
 // 价格数据点类型
@@ -96,11 +97,7 @@ function ProjectCardSkeleton() {
  * 展示：Cyber Score图表 + 描述 + 图片 + 关键指标
  */
 export function ProjectCard({ entity }: ProjectCardProps) {
-  const { data, isLoading, error } = useProjectDetail(entity) as {
-    data: ProjectDetail | null;
-    isLoading: boolean;
-    error: Error | null;
-  };
+  const { data, isLoading, error } = useProjectDetail(entity);
 
   // 加载中 - 显示骨架屏
   if (isLoading) {
@@ -117,8 +114,8 @@ export function ProjectCard({ entity }: ProjectCardProps) {
   }
 
   // 获取主要的X账号信息
-  const mainXAccount = data.x_accounts?.[0];
-  const cyberScore = mainXAccount?.cyber_score;
+  const mainXAccount = data.projectData?.xAccounts?.[0];
+  const cyberScore = mainXAccount?.cyberScore;
 
   // 格式化数字 - 资金用$前缀，其他不用
   const formatMoney = (num: number): string => {
@@ -140,19 +137,21 @@ export function ProjectCard({ entity }: ProjectCardProps) {
   };
 
   // 获取网站链接
-  const websiteLink = data.links?.find(link => link.type === 'web')?.value;
+  const websiteLink = data.projectData?.links?.find(link => link.type === 'web')?.value;
 
   // 获取价格图表数据 (后端已经返回完整的 PriceChartData 格式)
-  const priceChartData = data.coingecko_data?.market_chart?.price as PriceChartData | null | undefined;
+  const priceChartData = data.projectData?.priceChart?.price as PriceChartData | null | undefined;
 
   return (
     <div className="space-y-4 text-sm max-w-[400px]">
       {/* 头部：Logo + 标题 + Tags */}
       <div className="flex items-start gap-3">
         {data.image && (
-          <img
-            src={data.image}
+          <Image
+            src={typeof data.image === 'string' ? data.image : (data.image as any).large}
             alt={data.name}
+            width={48}
+            height={48}
             className="w-12 h-12 rounded-lg object-cover border border-border shrink-0"
             onError={(e) => {
               e.currentTarget.style.display = 'none';
@@ -163,9 +162,9 @@ export function ProjectCard({ entity }: ProjectCardProps) {
           <h4 className="font-semibold text-base text-foreground truncate">
             {data.name}
           </h4>
-          {data.tags && data.tags.length > 0 && (
+          {data.projectData?.tags && data.projectData.tags.length > 0 && (
             <div className="flex flex-wrap gap-1 mt-1.5">
-              {data.tags.slice(0, 3).map((tag, index) => (
+              {data.projectData.tags.slice(0, 3).map((tag, index) => (
                 <Badge
                   key={index}
                   variant="secondary"
@@ -200,21 +199,21 @@ export function ProjectCard({ entity }: ProjectCardProps) {
           {/* 右侧：关键指标 */}
           <div className="space-y-3 flex flex-col justify-center">
             {/* 融资额 */}
-            {data.total_funding > 0 && (
+            {data.projectData?.totalFunding && data.projectData.totalFunding > 0 && (
               <div>
                 <p className="text-xs text-muted-foreground mb-1">Funding</p>
                 <p className="font-semibold text-foreground">
-                  {formatMoney(data.total_funding)}
+                  {formatMoney(data.projectData.totalFunding)}
                 </p>
               </div>
             )}
 
             {/* Twitter粉丝 */}
-            {mainXAccount?.followers_count && (
+            {mainXAccount?.followersCount && (
               <div>
                 <p className="text-xs text-muted-foreground mb-1">Followers</p>
                 <p className="font-semibold text-foreground">
-                  {formatCount(mainXAccount.followers_count)}
+                  {formatCount(mainXAccount.followersCount)}
                 </p>
               </div>
             )}
